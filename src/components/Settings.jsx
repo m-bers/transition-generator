@@ -6,16 +6,30 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import NativeSelect from '@mui/material/NativeSelect';
 
-const Settings = ({ onSettingsChange }) => {
-  const [resolution, setResolution] = useState('512x768');
-  const [count, setCount] = useState(21);
-  const [seed, setSeed] = useState(104);
-  const [guidance, setGuidance] = useState(7);
+const Settings = ({ onSettingsChange, initialSettings }) => {
+  const [resolution, setResolution] = useState(initialSettings.resolution);
+  const [count, setCount] = useState(initialSettings.count);
+  const [seed, setSeed] = useState(initialSettings.seed);
+  const [guidance, setGuidance] = useState(initialSettings.guidance);
 
   useEffect(() => {
-    // Call the callback prop whenever any setting changes
     onSettingsChange({ resolution, count, seed, guidance });
   }, [resolution, count, seed, guidance, onSettingsChange]);
+
+  useEffect(() => {
+    if (initialSettings) {
+      setResolution(initialSettings.resolution);
+      setCount(initialSettings.count);
+      setSeed(initialSettings.seed);
+      setGuidance(initialSettings.guidance);
+    }
+  }, [initialSettings]);
+  
+  useEffect(() => {
+    window.getSeed = () => seed;
+    window.getResolution = () => resolution;
+    window.getGuidanceScale = () => guidance;
+  }, [seed, resolution, guidance]);
 
   return (
     <div>

@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Accordion, AccordionSummary, AccordionDetails, Typography, 
-         TextField, Stack, Slider, Button, Divider, 
-         ButtonGroup, Grid, IconButton } from '@mui/material';
+import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Typography,
+  TextField,
+  Stack,
+  Slider,
+  Button,
+  Divider,
+  ButtonGroup,
+  Grid,
+  IconButton
+} from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PublicIcon from '@mui/icons-material/Public';
 import HourglassTopIcon from '@mui/icons-material/HourglassTop';
@@ -12,30 +23,53 @@ function valuetext(value) {
   return `${value}%`;
 }
 
-export default function Prompt({ promptType, onPromptDataChange }) {
-  const [prompts, setPrompts] = useState([]);
-  const [jsonOutput, setJsonOutput] = useState('');
+export default function Prompt({ promptType, onPromptDataChange, initialPrompts, count }) {
+
+  const [prompts, setPrompts] = useState(initialPrompts || []);
+  const [isUpdated, setIsUpdated] = useState(false);
+
+  // Update prompts when initialPrompts changes
+  useEffect(() => {
+    if (Array.isArray(initialPrompts)) {
+      setPrompts(initialPrompts);
+    }
+  }, [initialPrompts]);
+
+  // Use another useEffect to call onPromptDataChange only when prompts are updated
+  useEffect(() => {
+    if (isUpdated && Array.isArray(prompts)) {
+      onPromptDataChange(prompts);
+      setIsUpdated(false);
+    }
+  }, [prompts, onPromptDataChange, isUpdated]);
 
   useEffect(() => {
-    onPromptDataChange(prompts.map((prompt, index) => ({
-      index: index + 1,
-      type: prompt.type,
-      ...(prompt.type === 'global' ? { tag: prompt.tag } : {
-        before: {
-          tag: prompt.before.tag,
-          value: prompt.before.value[0]
-        },
-        after: {
-          tag: prompt.after.tag,
-          value: prompt.after.value[1]
+    if (isUpdated && Array.isArray(prompts)) {
+      const updatedPrompts = prompts.map((prompt, index) => {
+        const rValue = calculateRValue(prompt, index);
+        if (prompt.type === 'transition') {
+          return { ...prompt, rValue: rValue.toFixed(2) };
         }
-      })
-    })));
-  }, [prompts, onPromptDataChange]);
+        return prompt;
+      });
+  
+      onPromptDataChange(updatedPrompts);
+      setIsUpdated(false);
+    }
+  }, [prompts, onPromptDataChange, isUpdated, count]);
+  
+
 
   const addGlobal = () => {
-    setPrompts([...prompts, { type: 'global', tag: '' }]);
+    const newPrompt = { type: 'global', tag: '' };
+    // Update based on promptType
+    if (promptType === 'main') {
+      setMainPromptData([...mainPromptData, newPrompt]);
+    } else if (promptType === 'anti') {
+      setAntiPromptData([...antiPromptData, newPrompt]);
+    }
   };
+  
 
   const addTransition = () => {
     setPrompts([...prompts, { type: 'transition', before: { tag: '', value: [0, 100] }, after: { tag: '', value: [0, 100] } }]);
@@ -52,17 +86,44 @@ export default function Prompt({ promptType, onPromptDataChange }) {
       return prompt;
     });
     setPrompts(newPrompts);
+    setIsUpdated(true);
   };
+
+  const calculateRValue = (prompt, index) => {
+    if (prompt.type === 'transition') {
+      const sliderMin = prompt.before.value[0];
+      const sliderMax = prompt.before.value[1];
+      // Normalize the range of the slider to 0-1
+      const normalizedMin = sliderMin / 100;
+      const normalizedMax = sliderMax / 100;
+      // Calculate rValue based on the index within the count
+      const rValue = normalizedMin + (normalizedMax - normalizedMin) * index / (count - 1);
+      return rValue;
+    }
+    return null;
+  };
+  
+  
 
   const updateSlider = (index, value) => {
     const newPrompts = prompts.map((prompt, idx) => {
-      if (idx === index) {
-        return { ...prompt, before: { ...prompt.before, value }, after: { ...prompt.after, value } };
+      if (idx === index && prompt.type === 'transition') {
+        const updatedPrompt = { 
+          ...prompt, 
+          before: { ...prompt.before, value: [...value] }, 
+          after: { ...prompt.after, value: [...value] }
+        };
+        console.log('Updated Prompt:', updatedPrompt); // Debug log
+        return updatedPrompt;
       }
       return prompt;
     });
     setPrompts(newPrompts);
+    setIsUpdated(true);
   };
+  
+  
+  
 
   const deletePrompt = index => {
     const newPrompts = prompts.filter((_, idx) => idx !== index);
@@ -78,7 +139,7 @@ export default function Prompt({ promptType, onPromptDataChange }) {
         <Divider />
         <AccordionDetails>
           <Grid container spacing={1} alignItems="center">
-            {prompts.map((prompt, index) => (
+            {Array.isArray(prompts) && prompts.map((prompt, index) => (
               <React.Fragment key={index}>
                 {prompt.type === 'global' && (
                   <>
@@ -146,9 +207,6 @@ export default function Prompt({ promptType, onPromptDataChange }) {
               </ButtonGroup>
             </Grid>
           </Grid>
-          <Typography variant="body2" style={{ marginTop: '20px', whiteSpace: 'pre-wrap' }}>
-            {jsonOutput}
-          </Typography>
         </AccordionDetails>
       </Accordion>
     </div>
