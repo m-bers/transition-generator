@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "https://m-bers.github.io/transition-generator/static/js/main.31ae350f.js",
+    "main.js": "https://m-bers.github.io/transition-generator/static/js/main.808c9aa5.js",
     "index.html": "https://m-bers.github.io/transition-generator/index.html",
-    "main.31ae350f.js.map": "https://m-bers.github.io/transition-generator/static/js/main.31ae350f.js.map"
+    "main.808c9aa5.js.map": "https://m-bers.github.io/transition-generator/static/js/main.808c9aa5.js.map"
   },
   "entrypoints": [
-    "static/js/main.31ae350f.js"
+    "static/js/main.808c9aa5.js"
   ]
 }
