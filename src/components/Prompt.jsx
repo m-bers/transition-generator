@@ -12,12 +12,12 @@ function valuetext(value) {
   return `${value}%`;
 }
 
-export default function BasicAccordion({ promptType }) {
+export default function Prompt({ promptType, onPromptDataChange }) {
   const [prompts, setPrompts] = useState([]);
   const [jsonOutput, setJsonOutput] = useState('');
 
   useEffect(() => {
-    const output = prompts.map((prompt, index) => ({
+    onPromptDataChange(prompts.map((prompt, index) => ({
       index: index + 1,
       type: prompt.type,
       ...(prompt.type === 'global' ? { tag: prompt.tag } : {
@@ -30,9 +30,8 @@ export default function BasicAccordion({ promptType }) {
           value: prompt.after.value[1]
         }
       })
-    }));
-    setJsonOutput(JSON.stringify({ [promptType]: output }, null, 2));
-  }, [prompts, promptType]);
+    })));
+  }, [prompts, onPromptDataChange]);
 
   const addGlobal = () => {
     setPrompts([...prompts, { type: 'global', tag: '' }]);
