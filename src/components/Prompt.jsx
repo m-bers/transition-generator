@@ -23,41 +23,40 @@ function valuetext(value) {
   return `${value}%`;
 }
 
-export default function Prompt({ promptType, onPromptDataChange, initialPrompts, count }) {
+export default function Prompt({ 
+  promptType, 
+  onPromptDataChange, 
+  initialPrompts, 
+  setMainPromptData, 
+  mainPromptData, 
+  setAntiPromptData, 
+  antiPromptData }) {
 
-  const [prompts, setPrompts] = useState(initialPrompts || []);
+  const [prompts, setPrompts] = useState(initialPrompts.map(prompt => {
+    if (prompt.type === 'transition') {
+      return {
+        ...prompt,
+        before: { ...prompt.before, value: Number(prompt.before.value) || 0 },
+        after: { ...prompt.after, value: Number(prompt.after.value) || 0 }
+      };
+    }
+    return prompt;
+  }) || []);
+
   const [isUpdated, setIsUpdated] = useState(false);
 
-  // Update prompts when initialPrompts changes
   useEffect(() => {
     if (Array.isArray(initialPrompts)) {
       setPrompts(initialPrompts);
     }
   }, [initialPrompts]);
 
-  // Use another useEffect to call onPromptDataChange only when prompts are updated
   useEffect(() => {
     if (isUpdated && Array.isArray(prompts)) {
       onPromptDataChange(prompts);
       setIsUpdated(false);
     }
   }, [prompts, onPromptDataChange, isUpdated]);
-
-  useEffect(() => {
-    if (isUpdated && Array.isArray(prompts)) {
-      const updatedPrompts = prompts.map((prompt, index) => {
-        const rValue = calculateRValue(prompt, index);
-        if (prompt.type === 'transition') {
-          return { ...prompt, rValue: rValue.toFixed(2) };
-        }
-        return prompt;
-      });
-  
-      onPromptDataChange(updatedPrompts);
-      setIsUpdated(false);
-    }
-  }, [prompts, onPromptDataChange, isUpdated, count]);
-  
 
 
   const addGlobal = () => {
@@ -69,11 +68,16 @@ export default function Prompt({ promptType, onPromptDataChange, initialPrompts,
       setAntiPromptData([...antiPromptData, newPrompt]);
     }
   };
-  
+
 
   const addTransition = () => {
-    setPrompts([...prompts, { type: 'transition', before: { tag: '', value: [0, 100] }, after: { tag: '', value: [0, 100] } }]);
+    setPrompts([...prompts, {
+      type: 'transition', 
+      before: { tag: '', value: 0 }, 
+      after: { tag: '', value: 100 }  // Set initial values to 0 and 100
+    }]);
   };
+  
 
   const updatePrompt = (index, key, value) => {
     const newPrompts = prompts.map((prompt, idx) => {
@@ -89,41 +93,20 @@ export default function Prompt({ promptType, onPromptDataChange, initialPrompts,
     setIsUpdated(true);
   };
 
-  const calculateRValue = (prompt, index) => {
-    if (prompt.type === 'transition') {
-      const sliderMin = prompt.before.value[0];
-      const sliderMax = prompt.before.value[1];
-      // Normalize the range of the slider to 0-1
-      const normalizedMin = sliderMin / 100;
-      const normalizedMax = sliderMax / 100;
-      // Calculate rValue based on the index within the count
-      const rValue = normalizedMin + (normalizedMax - normalizedMin) * index / (count - 1);
-      return rValue;
-    }
-    return null;
-  };
-  
-  
-
   const updateSlider = (index, value) => {
     const newPrompts = prompts.map((prompt, idx) => {
       if (idx === index && prompt.type === 'transition') {
-        const updatedPrompt = { 
-          ...prompt, 
-          before: { ...prompt.before, value: [...value] }, 
-          after: { ...prompt.after, value: [...value] }
+        return {
+          ...prompt,
+          before: { ...prompt.before, value: Number(value[0]) || 0 },
+          after: { ...prompt.after, value: Number(value[1]) || 100 }  // Use single number value
         };
-        console.log('Updated Prompt:', updatedPrompt); // Debug log
-        return updatedPrompt;
       }
       return prompt;
     });
     setPrompts(newPrompts);
     setIsUpdated(true);
   };
-  
-  
-  
 
   const deletePrompt = index => {
     const newPrompts = prompts.filter((_, idx) => idx !== index);
@@ -166,7 +149,7 @@ export default function Prompt({ promptType, onPromptDataChange, initialPrompts,
                           sx={{ height: 30 }}
                           getAriaLabel={() => 'Temperature'}
                           orientation="vertical"
-                          value={prompt.before.value}
+                          value={[Number(prompt.before.value) || 0, Number(prompt.after.value) || 0]}
                           onChange={(e, newValue) => updateSlider(index, newValue)}
                           valueLabelDisplay="auto"
                           min={0}

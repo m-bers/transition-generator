@@ -2,75 +2,103 @@
 import React, { useEffect, useRef } from 'react';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+
 
 const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, seed, guidanceScale, resolution }) => {
-
-
-    const outputRef = useRef(null);
-
-    const generateDivs = () => {
-        if (!mainPromptData || !antiPromptData) {
-            // If data is not available, don't attempt to generate divs
-            return null;
-        }
-
-        const divs = [];
-        for (let i = 0; i < count; i++) {
-            // Calculate rValue for each prompt independently
-            const mainRValues = mainPromptData.map(prompt =>
-                prompt.type === 'transition' ? i / (count - 1) * (prompt.before.value[1] - prompt.before.value[0]) / 100 : null
-            );
-            const antiRValues = antiPromptData.map(prompt =>
-                prompt.type === 'transition' ? i / (count - 1) * (prompt.before.value[1] - prompt.before.value[0]) / 100 : null
-            );
-
-            const mainPrompt = parsePrompt(mainPromptData, mainRValues);
-            const antiPrompt = parsePrompt(antiPromptData, antiRValues);
-
-
-            const finalData = {
-                prompt: mainPrompt,
-                negativePrompt: antiPrompt,
-                seed: seed,
-                guidanceScale: guidanceScale,
-                resolution: resolution
-              };
-            
-
-            divs.push(<div key={i}><div ref={outputRef} />{JSON.stringify(finalData)}</div>);
-        }
-        return divs;
-    };
-    const parsePrompt = (prompts, rValues) => {
-        return prompts.map((prompt, index) => {
-          if (prompt.type === 'global') {
-            return prompt.tag;
-          } else if (prompt.type === 'transition') {
-            const rValue = rValues[index];
-            return `[${prompt.after.tag}:${prompt.before.tag}:${rValue.toFixed(2)}]`;
+  const outputRef = useRef(null);
+  const generateCards = () => {
+    if (!mainPromptData || !antiPromptData) {
+      return null;
+    }
+    const divs = [];
+    for (let i = 0; i < count; i++) {
+      // Transform mainPromptData and antiPromptData
+      const transformedMainPromptData = mainPromptData.map(prompt =>
+        prompt.type === 'transition'
+          ? {
+            ...prompt,
+            value: interpolateRValue(prompt.before.value, prompt.after.value, i, count),
+            before: prompt.before.tag,
+            after: prompt.after.tag
           }
-        }).join(', ');
+          : prompt
+      );
+
+      const transformedAntiPromptData = antiPromptData.map(prompt =>
+        prompt.type === 'transition'
+          ? {
+            ...prompt,
+            value: interpolateRValue(prompt.before.value, prompt.after.value, i, count),
+            before: prompt.before.tag,
+            after: prompt.after.tag
+          }
+          : prompt
+      );
+
+      const finalData = {
+        prompt: transformedMainPromptData,
+        negativePrompt: transformedAntiPromptData,
+        seed: seed,
+        guidanceScale: guidanceScale,
+        resolution: resolution
       };
-      
+      const divId = `prompt-data-${i}`;
+
+      divs.push(
+        <Card sx={{ }}>
+          <CardMedia
+            component="div"
+            className="prompt-data"
+            data={JSON.stringify(finalData)}
+            key={i}
+            id={divId}
+          />
+          {/* <CardContent>
+          </CardContent> */}
+          <CardActions>
+            <Button size="small">Share</Button>
+            <Button size="small">Learn More</Button>
+          </CardActions>
+        </Card>);
+    }
+    return divs;
+  };
 
 
-    useEffect(() => {
-        // Assuming your backend output is in a div with id 'backend-output'
-        const backendOutput = document.getElementById('backend-output');
-        if (backendOutput && outputRef.current) {
-            outputRef.current.innerHTML = backendOutput.innerHTML;
-        }
-    }, []);
+  const interpolateRValue = (initialValue, finalValue, index, total) => {
+    const initVal = (100 - parseFloat(initialValue)) / 100;
+    const finalVal = (100 - parseFloat(finalValue)) / 100;
+    if (isNaN(initVal) || isNaN(finalVal)) {
+      console.error('Initial or final value is not a number', { initialValue, finalValue });
+      return 0;
+    }
+    const reversedIndex = (total - 1) - index;
+    return initVal + (finalVal - initVal) * reversedIndex / (total - 1);
+  };
 
-    return (
-        <Box
-            component="main"
-            sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
-        >
-            <Toolbar />
-            {generateDivs()}
-        </Box>
-    );
+  const boxId = 'main-box';
+  return (
+    <Box
+      component="main"
+      sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
+      id={boxId}
+      data-count={count}
+    >
+
+      <Toolbar />
+      <Stack spacing={{ xs: 1, sm: 2 }} direction="row" useFlexGap flexWrap="wrap">
+        {generateCards()}
+      </Stack>
+
+
+    </Box>
+  );
 };
 
 export default MainComponent;

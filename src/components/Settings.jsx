@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Card from '@mui/material/Card';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
@@ -7,29 +7,10 @@ import InputLabel from '@mui/material/InputLabel';
 import NativeSelect from '@mui/material/NativeSelect';
 
 const Settings = ({ onSettingsChange, initialSettings }) => {
-  const [resolution, setResolution] = useState(initialSettings.resolution);
-  const [count, setCount] = useState(initialSettings.count);
-  const [seed, setSeed] = useState(initialSettings.seed);
-  const [guidance, setGuidance] = useState(initialSettings.guidance);
 
-  useEffect(() => {
-    onSettingsChange({ resolution, count, seed, guidance });
-  }, [resolution, count, seed, guidance, onSettingsChange]);
-
-  useEffect(() => {
-    if (initialSettings) {
-      setResolution(initialSettings.resolution);
-      setCount(initialSettings.count);
-      setSeed(initialSettings.seed);
-      setGuidance(initialSettings.guidance);
-    }
-  }, [initialSettings]);
-  
-  useEffect(() => {
-    window.getSeed = () => seed;
-    window.getResolution = () => resolution;
-    window.getGuidanceScale = () => guidance;
-  }, [seed, resolution, guidance]);
+  const handleChange = (name, value) => {
+    onSettingsChange({ ...initialSettings, [name]: value });
+  };
 
   return (
     <div>
@@ -41,20 +22,38 @@ const Settings = ({ onSettingsChange, initialSettings }) => {
           autoComplete="off"
         >
           <FormControl fullWidth>
-            <InputLabel variant="standard" htmlFor="uncontrolled-native">Resolution</InputLabel>
+            <InputLabel variant="standard" htmlFor="resolution-native">Resolution</InputLabel>
             <NativeSelect
-              defaultValue={30}
-              inputProps={{ name: 'resolution', id: 'uncontrolled-native' }}
-              onChange={e => setResolution(e.target.value)}
+              value={initialSettings.resolution}
+              onChange={e => handleChange('resolution', e.target.value)}
+              inputProps={{ name: 'resolution', id: 'resolution-native' }}
             >
               <option value="768x512">768x512 (Landscape)</option>
               <option value="512x512">512x512 (Square)</option>
               <option value="512x768">512x768 (Portrait)</option>
             </NativeSelect>
           </FormControl>
-          <TextField id="count" label="Count" placeholder="21" variant="filled" onChange={e => setCount(parseInt(e.target.value, 10) || 0)} />
-          <TextField id="seed" label="Seed" placeholder="104" variant="filled" onChange={e => setSeed(parseInt(e.target.value, 10) || 0)} />
-          <TextField id="guidance" label="Guidance" placeholder="7" variant="filled" onChange={e => setGuidance(parseFloat(e.target.value) || 0)} />
+          <TextField 
+            id="count" 
+            label="Count" 
+            value={initialSettings.count} 
+            onChange={e => handleChange('count', parseInt(e.target.value, 10) || 0)} 
+            variant="filled" 
+          />
+          <TextField 
+            id="seed" 
+            label="Seed" 
+            value={initialSettings.seed} 
+            onChange={e => handleChange('seed', parseInt(e.target.value, 10) || 0)} 
+            variant="filled" 
+          />
+          <TextField 
+            id="guidance" 
+            label="Guidance" 
+            value={initialSettings.guidance} 
+            onChange={e => handleChange('guidance', parseFloat(e.target.value) || 0)} 
+            variant="filled" 
+          />
         </Box>
       </Card>
     </div>

@@ -15,7 +15,6 @@ export default function App() {
   const [mainPromptData, setMainPromptData] = useState([]);
   const [antiPromptData, setAntiPromptData] = useState([]);
   const [settingsData, setSettingsData] = useState({ resolution: '512x768', count: 21, seed: 104, guidance: 7 });
-  const [generateClicked, setGenerateClicked] = useState(false);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -77,26 +76,9 @@ export default function App() {
     setSettingsData(data);
   }, []);
 
-  // Define a global function and attach it to the window object
-  const getOutput = (final) => {
-    // if (!generateClicked) {
-    //   // Call the imageGen function only if "Generate" button has been clicked
-    //   return imageGen(final);
-    // }
-    // // You can return something else or handle it as needed when the button hasn't been clicked
-    return "";
-  };
-
   const handleGenerateClick = () => {
-    update();
-    setGenerateClicked(true);
+    Generate();
   };
-
-  useEffect(() => {
-    // Attach the function to the window object
-    window.getOutput = getOutput;
-    window.generateClicked = () => generateClicked;
-  }, [getOutput, generateClicked]);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -114,19 +96,23 @@ export default function App() {
           onPromptDataChange={handleMainPromptDataChange}
           initialPrompts={mainPromptData}
           count={settingsData.count}
+          setMainPromptData={setMainPromptData}
+          mainPromptData={mainPromptData} // Pass mainPromptData as a prop
         />
+
         <Prompt
           promptType="anti"
           onPromptDataChange={handleAntiPromptDataChange}
           initialPrompts={antiPromptData}
           count={settingsData.count}
+          setAntiPromptData={setAntiPromptData} // Pass the function as a prop
+          antiPromptData={antiPromptData} // Pass mainPromptData as a prop
         />
         <Settings onSettingsChange={handleSettingsChange} initialSettings={settingsData} />
 
 
 
       </Drawer>
-      // In App.jsx, where you render MainComponent
       <MainComponent
         drawerWidth={drawerWidth}
         count={settingsData.count}
