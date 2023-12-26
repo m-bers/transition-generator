@@ -4,106 +4,74 @@ import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import HeroImage from '../hero-image.jpg'
 import Typography from '@mui/material/Typography'
 import Alert from '@mui/material/Alert';
-import CheckIcon from '@mui/icons-material/Check';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 
 
-const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, setMainPromptData, setAntiPromptData, seed, guidanceScale, resolution, shouldGenerate, startSelectedIndex, setStartSelectedIndex, endSelectedIndex, setEndSelectedIndex, children }) => {
+const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, localMainPromptData, localAntiPromptData, setLocalMainPromptData, setLocalAntiPromptData, seed, guidanceScale, resolution, shouldGenerate, setShouldGenerate, hasStarted, startSelectedIndex, setStartSelectedIndex, endSelectedIndex, setEndSelectedIndex, children }) => {
   const [cards, setCards] = useState([]); // State to store generated cards
+  const [updatePromptTrigger, setUpdatePromptTrigger] = useState({ start: false, end: false });
+
+  useEffect(() => {
+    setLocalMainPromptData(mainPromptData);
+    setLocalAntiPromptData(antiPromptData);
+  }, [mainPromptData, antiPromptData]);
 
   useEffect(() => {
     if (shouldGenerate) {
       setCards(generateCards()); // Generate new cards
-    } else {
-      setCards([]); // Clear cards if shouldGenerate is false
     }
   }, [shouldGenerate, mainPromptData, antiPromptData, count, seed, guidanceScale, resolution]); // Dependencies
 
+  useEffect(() => {
+    if (hasStarted) {
+      setCards(generateCards()); // Generate new cards
+    }
+  }, [startSelectedIndex, endSelectedIndex]); // Dependencies
+
   const handleStartClick = (cardIndex) => {
     setStartSelectedIndex(cardIndex);
-    setMainPromptData(currentData => {
-      const updatedData = currentData.map((prompt) => {
-        if (prompt.type === 'transition') {
-          const rValue = 100 - (interpolateRValue(prompt.before.value, prompt.after.value, cardIndex, count) * 100);
-          return {
-            ...prompt,
-            after: {
-              ...prompt.after,
-              value: rValue
-            }
-          };
-        }
-        return prompt;
-      });
-      return updatedData;
-    });
-    setAntiPromptData(currentData => {
-      return currentData.map((prompt) => {
-        if (prompt.type === 'transition') {
-          const rValue = 100 - (interpolateRValue(prompt.before.value, prompt.after.value, cardIndex, count) * 100);
-          return {
-            ...prompt,
-            after: {
-              ...prompt.after,
-              value: rValue
-            }
-          };
-        }
-        return prompt;
-      });
-    });
+    setUpdatePromptTrigger({ start: true, end: false }); // Set trigger for start
   };
 
   const handleEndClick = (cardIndex) => {
     setEndSelectedIndex(cardIndex);
-    // Update mainPromptData for 'after' values
-    setMainPromptData(currentData => {
-      return currentData.map((prompt) => {
-        if (prompt.type === 'transition') {
-          const rValue = 100 - (interpolateRValue(prompt.before.value, prompt.after.value, cardIndex, count) * 100);
-          return {
-            ...prompt,
-            before: {
-              ...prompt.before,
-              value: rValue
-            }
-          };
-        }
-        return prompt;
-      });
-    });
-
-    // Update antiPromptData for 'after' values
-    setAntiPromptData(currentData => {
-      return currentData.map((prompt) => {
-        if (prompt.type === 'transition') {
-          const rValue = 100 - (interpolateRValue(prompt.before.value, prompt.after.value, cardIndex, count) * 100);
-          return {
-            ...prompt,
-            before: {
-              ...prompt.before,
-              value: rValue
-            }
-          };
-        }
-        return prompt;
-      });
-    });
+    setUpdatePromptTrigger({ start: false, end: true }); // Set trigger for end
   };
 
-  const generateCards = () => {
-    if (!shouldGenerate || !mainPromptData || !antiPromptData) {
-      return null;
+  useEffect(() => {
+    if (updatePromptTrigger.start || updatePromptTrigger.end) {
+      const updateData = (currentData, originalData) => {
+        return currentData.map((prompt, index) => {
+          if (prompt.type === 'transition') {
+            const originalPrompt = originalData[index];
+            const cardIndex = updatePromptTrigger.start ? startSelectedIndex : endSelectedIndex;
+            const rValue = 100 - (interpolateRValue(originalPrompt.before.value, originalPrompt.after.value, cardIndex, count) * 100);
+            return {
+              ...prompt,
+              [updatePromptTrigger.start ? 'after' : 'before']: {
+                ...prompt[updatePromptTrigger.start ? 'after' : 'before'],
+                value: rValue,
+              },
+            };
+          }
+          return prompt;
+        });
+      };
+
+      setLocalMainPromptData(currentData => updateData(currentData, mainPromptData));
+      setLocalAntiPromptData(currentData => updateData(currentData, antiPromptData));
+      setUpdatePromptTrigger({ start: false, end: false });
     }
+  }, [updatePromptTrigger, startSelectedIndex, endSelectedIndex, mainPromptData, antiPromptData, count]);
+  
+
+  const generateCards = () => {
     if (!mainPromptData || !antiPromptData) {
       return null;
     }
@@ -152,6 +120,7 @@ const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, set
             data={JSON.stringify(finalData)}
             key={i}
             id={divId}
+            maxWidth="200"
           />
           {startSelectedIndex === i &&
               <Alert variant="outlined" icon={<HourglassTopIcon fontSize="inherit" />} color="primary"><Typography variant="button" color="primary">Start image</Typography></Alert>}
@@ -164,6 +133,7 @@ const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, set
             </CardActions>}
         </Card>);
     }
+    setShouldGenerate(false);
     return divs;
   };
 
@@ -196,8 +166,8 @@ const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, set
     >
 
       <Toolbar />
-      <Stack spacing={{ xs: 1, sm: 2 }} direction="row" useFlexGap flexWrap="wrap">
-        {shouldGenerate ? cards : children}
+      <Stack spacing={{ xs: 1, sm: 2 }} direction="row" useFlexGap justifyContent="center" flexWrap="wrap">
+        {hasStarted ? cards : children}
       </Stack>
 
 

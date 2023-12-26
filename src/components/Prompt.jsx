@@ -20,18 +20,11 @@ import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-function valuetext(value) {
-  return `${value}%`;
-}
-
 export default function Prompt({ 
   promptType, 
   onPromptDataChange, 
-  initialPrompts, 
-  setMainPromptData, 
-  mainPromptData, 
-  setAntiPromptData, 
-  antiPromptData }) {
+  initialPrompts
+}) {
 
   const [prompts, setPrompts] = useState(initialPrompts.map(prompt => {
     if (prompt.type === 'transition') {

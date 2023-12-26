@@ -18,9 +18,12 @@ export default function App() {
   const [antiPromptData, setAntiPromptData] = useState([]);
   const [settingsData, setSettingsData] = useState({ resolution: '512x768', count: 21, seed: 104, guidance: 7 });
   const [shouldGenerate, setShouldGenerate] = useState(false); // New state for triggering generation
+  const [hasStarted, setHasStarted] = useState(false);
   const [startSelectedIndex, setStartSelectedIndex] = useState(null);
   const [endSelectedIndex, setEndSelectedIndex] = useState(null);
-
+  const [localMainPromptData, setLocalMainPromptData] = useState(mainPromptData);
+  const [localAntiPromptData, setLocalAntiPromptData] = useState(antiPromptData);
+  
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -84,23 +87,21 @@ export default function App() {
   }, []);
 
   const handleGenerate = () => {
+    setMainPromptData(localMainPromptData);
+    setAntiPromptData(localAntiPromptData);
     setShouldGenerate(true); // Always set to true to trigger generation
-    // Other actions before generate
+    setHasStarted(true);
     setStartSelectedIndex(null);
     setEndSelectedIndex(null);
-  
-  
-    Generate(); // This should be your final call in this function
+    Generate();
   };
 
   const handleRandomize = () => {
-    setShouldGenerate(true); // Always set to true to trigger generation
-    // Other actions before generate
+    setShouldGenerate(true);
+    setHasStarted(true);
     setStartSelectedIndex(null);
     setEndSelectedIndex(null);
-  
-  
-    Generate(); // This should be your final call in this function
+    Generate(); 
   };
 
   const handleDownload = () => {
@@ -147,12 +148,16 @@ export default function App() {
         count={settingsData.count}
         mainPromptData={mainPromptData}
         antiPromptData={antiPromptData}
-        setMainPromptData={setMainPromptData}
-        setAntiPromptData={setAntiPromptData}
+        localMainPromptData={localMainPromptData}
+        localAntiPromptData={localAntiPromptData}
+        setLocalMainPromptData={setLocalMainPromptData}
+        setLocalAntiPromptData={setLocalAntiPromptData}
         seed={settingsData.seed}
         guidanceScale={settingsData.guidance}
         resolution={settingsData.resolution}
         shouldGenerate={shouldGenerate}
+        setShouldGenerate={setShouldGenerate}
+        hasStarted={hasStarted}
         startSelectedIndex={startSelectedIndex}
         setStartSelectedIndex={setStartSelectedIndex}
         endSelectedIndex={endSelectedIndex}
