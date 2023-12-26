@@ -82,7 +82,7 @@
 
             const promptDataElement = document.getElementById(`prompt-data-${x-1}`);
             if (promptDataElement) {
-              promptDataElement.innerHTML += `<div id="image-${x-1}">${imageGen(final)}</div>`;
+              promptDataElement.innerHTML = `<div id="image-${x-1}">${imageGen(final)}</div>`;
             }
 
           return '';

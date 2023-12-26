@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import NativeSelect from '@mui/material/NativeSelect';
+import Stack from '@mui/material/Stack';
 
 const Settings = ({ onSettingsChange, initialSettings }) => {
 
@@ -21,6 +22,7 @@ const Settings = ({ onSettingsChange, initialSettings }) => {
           noValidate
           autoComplete="off"
         >
+          <Stack spacing={2} direction="column" sx={{ mb: 1 }} >
           <FormControl fullWidth>
             <InputLabel variant="standard" htmlFor="resolution-native">Resolution</InputLabel>
             <NativeSelect
@@ -54,6 +56,7 @@ const Settings = ({ onSettingsChange, initialSettings }) => {
             onChange={e => handleChange('guidance', parseFloat(e.target.value) || 0)} 
             variant="filled" 
           />
+          </Stack>
         </Box>
       </Card>
     </div>

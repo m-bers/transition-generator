@@ -1,5 +1,5 @@
 // MainComponent.js
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Card from '@mui/material/Card';
@@ -8,16 +8,101 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
+import HeroImage from '../hero-image.jpg'
+import Typography from '@mui/material/Typography'
+const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, setMainPromptData, setAntiPromptData, seed, guidanceScale, resolution, shouldGenerate, startSelectedIndex, setStartSelectedIndex, endSelectedIndex, setEndSelectedIndex, children }) => {
+  const [cards, setCards] = useState([]); // State to store generated cards
+  
+  useEffect(() => {
+    if (shouldGenerate) {
+      setCards(generateCards()); // Generate new cards
+    } else {
+      setCards([]); // Clear cards if shouldGenerate is false
+    }
+  }, [shouldGenerate, mainPromptData, antiPromptData, count, seed, guidanceScale, resolution]); // Dependencies
 
-
-const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, seed, guidanceScale, resolution }) => {
-  const outputRef = useRef(null);
+  const handleStartClick = (cardIndex) => {
+    setStartSelectedIndex(cardIndex); 
+    setMainPromptData(currentData => {
+      const updatedData = currentData.map((prompt) => {
+        if (prompt.type === 'transition') {
+          const rValue = 100 - (interpolateRValue(prompt.before.value, prompt.after.value, cardIndex, count) * 100);
+          return {
+            ...prompt,
+            after: {
+              ...prompt.after,
+              value: rValue
+            }
+          };
+        }
+        return prompt;
+      });
+      return updatedData;
+    });
+    setAntiPromptData(currentData => {
+      return currentData.map((prompt) => {
+        if (prompt.type === 'transition') {
+          const rValue = 100 - (interpolateRValue(prompt.before.value, prompt.after.value, cardIndex, count) * 100);
+          return {
+            ...prompt,
+            after: {
+              ...prompt.after,
+              value: rValue
+            }
+          };
+        }
+        return prompt;
+      });
+    });
+  };
+  
+  const handleEndClick = (cardIndex) => {
+    setEndSelectedIndex(cardIndex); 
+    // Update mainPromptData for 'after' values
+    setMainPromptData(currentData => {
+      return currentData.map((prompt) => {
+        if (prompt.type === 'transition') {
+          const rValue = 100 - (interpolateRValue(prompt.before.value, prompt.after.value, cardIndex, count) * 100);
+          return {
+            ...prompt,
+            before: {
+              ...prompt.before,
+              value: rValue
+            }
+          };
+        }
+        return prompt;
+      });
+    });
+  
+    // Update antiPromptData for 'after' values
+    setAntiPromptData(currentData => {
+      return currentData.map((prompt) => {
+        if (prompt.type === 'transition') {
+          const rValue = 100 - (interpolateRValue(prompt.before.value, prompt.after.value, cardIndex, count) * 100);
+          return {
+            ...prompt,
+            before: {
+              ...prompt.before,
+              value: rValue
+            }
+          };
+        }
+        return prompt;
+      });
+    });
+  };
+  
   const generateCards = () => {
+    if (!shouldGenerate || !mainPromptData || !antiPromptData) {
+      return null;
+    }
     if (!mainPromptData || !antiPromptData) {
       return null;
     }
     const divs = [];
     for (let i = 0; i < count; i++) {
+
       // Transform mainPromptData and antiPromptData
       const transformedMainPromptData = mainPromptData.map(prompt =>
         prompt.type === 'transition'
@@ -51,7 +136,7 @@ const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, see
       const divId = `prompt-data-${i}`;
 
       divs.push(
-        <Card sx={{ }}>
+        <Card sx={{}}>
           <CardMedia
             component="div"
             className="prompt-data"
@@ -59,11 +144,14 @@ const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, see
             key={i}
             id={divId}
           />
-          {/* <CardContent>
-          </CardContent> */}
+          <CardContent>
+          {startSelectedIndex === i && <div>Start Selected</div>}
+          {endSelectedIndex === i && <div>End Selected</div>}
+            {JSON.stringify(finalData)}
+          </CardContent>
           <CardActions>
-            <Button size="small">Share</Button>
-            <Button size="small">Learn More</Button>
+            <Button size="small" onClick={() => handleStartClick(i)}>Start</Button>
+            <Button size="small" onClick={() => handleEndClick(i)}>End</Button>
           </CardActions>
         </Card>);
     }
@@ -79,8 +167,15 @@ const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, see
       return 0;
     }
     const reversedIndex = (total - 1) - index;
-    return initVal + (finalVal - initVal) * reversedIndex / (total - 1);
+    const result = initVal + (finalVal - initVal) * reversedIndex / (total - 1);
+
+    if (Number.isInteger(result)) {
+      return result.toFixed(2); // Converts integer to a string with two decimal places
+    }
+    return result; // Returns the original number with its inherent precision
   };
+
+
 
   const boxId = 'main-box';
   return (
@@ -93,7 +188,7 @@ const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, see
 
       <Toolbar />
       <Stack spacing={{ xs: 1, sm: 2 }} direction="row" useFlexGap flexWrap="wrap">
-        {generateCards()}
+        {shouldGenerate ? cards : children}
       </Stack>
 
 

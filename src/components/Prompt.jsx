@@ -1,3 +1,4 @@
+// Prompt.jsx
 import React, { useState, useEffect } from 'react';
 import {
   Accordion,
@@ -61,12 +62,7 @@ export default function Prompt({
 
   const addGlobal = () => {
     const newPrompt = { type: 'global', tag: '' };
-    // Update based on promptType
-    if (promptType === 'main') {
-      setMainPromptData([...mainPromptData, newPrompt]);
-    } else if (promptType === 'anti') {
-      setAntiPromptData([...antiPromptData, newPrompt]);
-    }
+    setPrompts([...prompts, newPrompt]);
   };
 
 
