@@ -5,8 +5,13 @@ import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import Button from '@mui/material/Button';
+import SaveIcon from '@mui/icons-material/Save';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import ShuffleIcon from '@mui/icons-material/Shuffle';
+import PermMediaIcon from '@mui/icons-material/PermMedia';
 
-const MyAppBar = ({ drawerWidth, handleDrawerToggle, handleDownload, handleFileUpload, handleGenerateClick }) => {
+const MyAppBar = ({ drawerWidth, handleDrawerToggle, handleSave, handleLoad, handleDownload, handleGenerate, handleRandomize }) => {
 
     return (
         <AppBar
@@ -32,15 +37,15 @@ const MyAppBar = ({ drawerWidth, handleDrawerToggle, handleDownload, handleFileU
                   accept=".json"
                   style={{ display: 'none' }}
                   id="file-upload"
-                  onChange={handleFileUpload}
+                  onChange={handleLoad}
                 />
                 <label htmlFor="file-upload">
-                  <Button color="inherit" component="span">
-                    Upload
-                  </Button>
+                    <IconButton color="inherit" component="span"><UploadFileIcon/></IconButton>
                 </label>
-                <Button color="inherit" onClick={handleDownload}>Download</Button>
-                <Button color="inherit" onClick={handleGenerateClick}>Generate</Button>
+                <IconButton color="inherit" onClick={handleSave}><SaveIcon/></IconButton>
+                <IconButton color="inherit" onClick={handleGenerate}><RestartAltIcon/></IconButton>
+                <IconButton color="inherit" onClick={handleRandomize}><ShuffleIcon/></IconButton>
+                <IconButton color="inherit" onClick={handleDownload}><PermMediaIcon/></IconButton>
             </Toolbar>
         </AppBar>
     );

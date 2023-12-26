@@ -25,7 +25,7 @@ export default function App() {
     setMobileOpen(!mobileOpen);
   };
 
-  const handleDownload = () => {
+  const handleSave = () => {
     const data = {
       resolution: settingsData.resolution,
       count: settingsData.count,
@@ -43,7 +43,7 @@ export default function App() {
     URL.revokeObjectURL(url);
   };
 
-  const handleFileUpload = (event) => {
+  const handleLoad = (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
@@ -83,16 +83,29 @@ export default function App() {
     setSettingsData(data);
   }, []);
 
-  const handleGenerateClick = () => {
+  const handleGenerate = () => {
     setShouldGenerate(true); // Always set to true to trigger generation
     // Other actions before generate
     setStartSelectedIndex(null);
     setEndSelectedIndex(null);
   
   
-    // Generate(); // This should be your final call in this function
+    Generate(); // This should be your final call in this function
   };
 
+  const handleRandomize = () => {
+    setShouldGenerate(true); // Always set to true to trigger generation
+    // Other actions before generate
+    setStartSelectedIndex(null);
+    setEndSelectedIndex(null);
+  
+  
+    Generate(); // This should be your final call in this function
+  };
+
+  const handleDownload = () => {
+    DownloadImages();
+  }
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -100,9 +113,11 @@ export default function App() {
       <AppBar
         drawerWidth={drawerWidth}
         handleDrawerToggle={handleDrawerToggle}
+        handleSave={handleSave}
+        handleLoad={handleLoad}
         handleDownload={handleDownload}
-        handleFileUpload={handleFileUpload}
-        handleGenerateClick={handleGenerateClick}
+        handleGenerate={handleGenerate}
+        handleRandomize={handleRandomize}
       />
       <Drawer drawerWidth={drawerWidth} mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle}>
         <Prompt

@@ -33,7 +33,7 @@ export default function App() {
     setMobileOpen(!mobileOpen);
   };
 
-  const handleDownload = () => {
+  const handleSave = () => {
     const data = {
       resolution: settingsData.resolution,
       count: settingsData.count,
@@ -54,7 +54,7 @@ export default function App() {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <MyAppBar drawerWidth={drawerWidth} handleDrawerToggle={handleDrawerToggle} handleDownload={handleDownload} />
+      <MyAppBar drawerWidth={drawerWidth} handleDrawerToggle={handleDrawerToggle} handleSave={handleSave} />
       <Drawer drawerWidth={drawerWidth} mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle}>
         <Prompt promptType="main" onPromptDataChange={setMainPromptData} />
         <Prompt promptType="anti" onPromptDataChange={setAntiPromptData} />
@@ -77,7 +77,7 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import Button from '@mui/material/Button';
 
-const MyAppBar = ({ drawerWidth, handleDrawerToggle, handleDownload }) => {
+const MyAppBar = ({ drawerWidth, handleDrawerToggle, handleSave }) => {
     return (
         <AppBar
             position="fixed"
@@ -96,7 +96,7 @@ const MyAppBar = ({ drawerWidth, handleDrawerToggle, handleDownload }) => {
                 >
                     <MenuIcon />
                 </IconButton>
-                <Button color="inherit" onClick={handleDownload}>Download</Button>
+                <Button color="inherit" onClick={handleSave}>Download</Button>
             </Toolbar>
         </AppBar>
     );
@@ -165,8 +165,8 @@ export default Settings;
 
 ### Explanation:
 
-- **App.js**: This component now manages the state for `main`, `anti`, and `settings` data. The `handleDownload` function creates a JSON object from this data and triggers the download.
-- **MyAppBar.jsx**: Added a "Download" button that calls the `handleDownload` function passed from `App.js`.
+- **App.js**: This component now manages the state for `main`, `anti`, and `settings` data. The `handleSave` function creates a JSON object from this data and triggers the download.
+- **MyAppBar.jsx**: Added a "Download" button that calls the `handleSave` function passed from `App.js`.
 - **Settings.jsx**: Modified to lift its state up to `App.js`. It calls `onSettingsChange` whenever any setting changes.
 
 Remember to pass the necessary props (`onPromptDataChange` for `Prompt` and `onSettingsChange` for `Settings`) in `App.js` to ensure the state is correctly lifted up.

@@ -14,10 +14,10 @@ export default function Theme({children}) {
         palette: {
           mode: prefersDarkMode ? 'dark' : 'light',
           primary: {
-            main: '#556cd6',
+            main: '#6d00ff',
           },
           secondary: {
-            main: '#19857b',
+            main: '#91ff00',
           },
           error: {
             main: red.A400,
