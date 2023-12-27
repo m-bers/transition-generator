@@ -13,7 +13,7 @@ import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 
 
-const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, localMainPromptData, localAntiPromptData, setLocalMainPromptData, setLocalAntiPromptData, seed, guidanceScale, resolution, shouldGenerate, setShouldGenerate, hasStarted, startSelectedIndex, setStartSelectedIndex, endSelectedIndex, setEndSelectedIndex, children }) => {
+const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, isRandomGeneration, randomSeeds, localMainPromptData, localAntiPromptData, setLocalMainPromptData, setLocalAntiPromptData, seed, guidanceScale, resolution, shouldGenerate, setShouldGenerate, hasStarted, startSelectedIndex, setStartSelectedIndex, endSelectedIndex, setEndSelectedIndex, children }) => {
   const [cards, setCards] = useState([]); // State to store generated cards
   const [updatePromptTrigger, setUpdatePromptTrigger] = useState({ start: false, end: false });
 
@@ -69,7 +69,7 @@ const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, loc
       setUpdatePromptTrigger({ start: false, end: false });
     }
   }, [updatePromptTrigger, startSelectedIndex, endSelectedIndex, mainPromptData, antiPromptData, count]);
-  
+
 
   const generateCards = () => {
     if (!mainPromptData || !antiPromptData) {
@@ -104,7 +104,7 @@ const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, loc
       const finalData = {
         prompt: transformedMainPromptData,
         negativePrompt: transformedAntiPromptData,
-        seed: seed,
+        seed: isRandomGeneration ? randomSeeds[i] : seed,
         guidanceScale: guidanceScale,
         resolution: resolution
       };
@@ -123,9 +123,9 @@ const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, loc
             maxWidth="200"
           />
           {startSelectedIndex === i &&
-              <Alert variant="outlined" icon={<HourglassTopIcon fontSize="inherit" />} color="primary"><Typography variant="button" color="primary">Start image</Typography></Alert>}
+            <Alert variant="outlined" icon={<HourglassTopIcon fontSize="inherit" />} color="primary"><Typography variant="button" color="primary">Start image</Typography></Alert>}
           {endSelectedIndex === i &&
-              <Alert variant="outlined" icon={<HourglassBottomIcon fontSize="inherit" />} color="primary"><Typography variant="button" color="primary">End image</Typography></Alert>}
+            <Alert variant="outlined" icon={<HourglassBottomIcon fontSize="inherit" />} color="primary"><Typography variant="button" color="primary">End image</Typography></Alert>}
           {(startSelectedIndex !== i && endSelectedIndex !== i) && // Check if neither Start nor End is selected
             <CardActions>
               <Button size="small" onClick={() => handleStartClick(i)} startIcon={<HourglassTopIcon />}>Set Start</Button>

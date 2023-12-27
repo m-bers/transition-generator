@@ -23,7 +23,9 @@ export default function App() {
   const [endSelectedIndex, setEndSelectedIndex] = useState(null);
   const [localMainPromptData, setLocalMainPromptData] = useState(mainPromptData);
   const [localAntiPromptData, setLocalAntiPromptData] = useState(antiPromptData);
-  
+  const [randomSeeds, setRandomSeeds] = useState([]);
+  const [isRandomGeneration, setIsRandomGeneration] = useState(false);
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -87,6 +89,7 @@ export default function App() {
   }, []);
 
   const handleGenerate = () => {
+    setIsRandomGeneration(false); 
     setMainPromptData(localMainPromptData);
     setAntiPromptData(localAntiPromptData);
     setShouldGenerate(true); // Always set to true to trigger generation
@@ -97,6 +100,11 @@ export default function App() {
   };
 
   const handleRandomize = () => {
+    const newRandomSeeds = Array.from({ length: settingsData.count }, () => Math.floor(Math.random() * 10000000));
+    setRandomSeeds(newRandomSeeds);
+    setIsRandomGeneration(true); 
+    setMainPromptData(localMainPromptData);
+    setAntiPromptData(localAntiPromptData);
     setShouldGenerate(true);
     setHasStarted(true);
     setStartSelectedIndex(null);
@@ -162,7 +170,9 @@ export default function App() {
         setStartSelectedIndex={setStartSelectedIndex}
         endSelectedIndex={endSelectedIndex}
         setEndSelectedIndex={setEndSelectedIndex}
-      
+        isRandomGeneration={isRandomGeneration}
+        randomSeeds={randomSeeds}
+
       >
         <Stack spacing={2} direction="column" sx={{ mb: 1, maxWidth: 240 }} alignItems="center">
           <Typography variant="h6" noWrap component="div">
