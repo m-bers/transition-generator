@@ -6,15 +6,15 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
-
+import CompareIcon from '@mui/icons-material/Compare';
 
 const ResponsiveDrawer = ({ drawerWidth, mobileOpen, handleDrawerToggle, children }) => {
     const drawerContent = (
         <div>
             <Toolbar>
-                <Typography variant="h6" noWrap component="div">
-                    Transition Generator
-                </Typography>
+            <Typography variant="h6" noWrap component="div" color="primary">
+              <CompareIcon sx={{ marginTop: -5, marginBottom: -0.7 }}/> Transition Generator
+            </Typography>
             </Toolbar>
             <Divider />
             <Stack spacing={2}>

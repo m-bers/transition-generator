@@ -12,17 +12,17 @@ import {
   Divider,
   ButtonGroup,
   Grid,
-  IconButton
+  IconButton,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PublicIcon from '@mui/icons-material/Public';
 import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 import DeleteIcon from '@mui/icons-material/Delete';
-
-export default function Prompt({ 
-  promptType, 
-  onPromptDataChange, 
+import DragIndicator from '@mui/icons-material/DragIndicator'
+export default function Prompt({
+  promptType,
+  onPromptDataChange,
   initialPrompts
 }) {
 
@@ -30,8 +30,8 @@ export default function Prompt({
     if (prompt.type === 'transition') {
       return {
         ...prompt,
-        before: { ...prompt.before, value: Number(prompt.before.value) || 0 },
-        after: { ...prompt.after, value: Number(prompt.after.value) || 0 }
+        after: { ...prompt.after, value: Number(prompt.after.value) || 0 },
+        before: { ...prompt.before, value: Number(prompt.before.value) || 0 }
       };
     }
     return prompt;
@@ -61,17 +61,17 @@ export default function Prompt({
 
   const addTransition = () => {
     setPrompts([...prompts, {
-      type: 'transition', 
-      before: { tag: '', value: 0 }, 
-      after: { tag: '', value: 100 }  // Set initial values to 0 and 100
+      type: 'transition',
+      after: { tag: '', value: 0 },
+      before: { tag: '', value: 100 }  // Set initial values to 0 and 100
     }]);
   };
-  
+
 
   const updatePrompt = (index, key, value) => {
     const newPrompts = prompts.map((prompt, idx) => {
       if (idx === index) {
-        if (key === 'before' || key === 'after') {
+        if (key === 'after' || key === 'before') {
           return { ...prompt, [key]: { ...prompt[key], tag: value } };
         }
         return { ...prompt, [key]: value };
@@ -87,8 +87,8 @@ export default function Prompt({
       if (idx === index && prompt.type === 'transition') {
         return {
           ...prompt,
-          before: { ...prompt.before, value: Number(value[0]) || 0 },
-          after: { ...prompt.after, value: Number(value[1]) || 100 }  // Use single number value
+          after: { ...prompt.after, value: Number(value[0]) || 0 },
+          before: { ...prompt.before, value: Number(value[1]) || 100 }  // Use single number value
         };
       }
       return prompt;
@@ -116,16 +116,22 @@ export default function Prompt({
                 {prompt.type === 'global' && (
                   <>
                     <Grid item xs={2}>
-                      <PublicIcon />
+                      <PublicIcon sx={{ marginLeft: 0.5 }} />
                     </Grid>
-                    <Grid item xs={10}>
+                    <Grid item xs={9}>
                       <TextField
                         label="Global"
                         placeholder="e.g. woman portrait"
+                        multiline
                         variant="filled"
                         value={prompt.tag}
                         onChange={(e) => updatePrompt(index, 'tag', e.target.value)}
                       />
+                    </Grid>
+                    <Grid item xs={1}>
+                      <IconButton onClick={() => deletePrompt(index)}>
+                        <DeleteIcon sx={{ marginLeft: -1 }} />
+                      </IconButton>
                     </Grid>
                   </>
                 )}
@@ -147,32 +153,36 @@ export default function Prompt({
                         <HourglassBottomIcon />
                       </Stack>
                     </Grid>
-                    <Grid item xs={10}>
+                    <Grid item xs={9}>
                       <TextField
                         label="Before"
-                        placeholder="e.g. hippie aesthetic"
+                        placeholder="e.g. goth aesthetic"
+                        multiline
                         variant="filled"
                         value={prompt.before.tag}
                         onChange={(e) => updatePrompt(index, 'before', e.target.value)}
                       />
                       <TextField
                         label="After"
-                        placeholder="e.g. goth aesthetic"
+                        placeholder="e.g. hippie aesthetic"
+                        multiline
                         variant="filled"
                         value={prompt.after.tag}
                         onChange={(e) => updatePrompt(index, 'after', e.target.value)}
                       />
                     </Grid>
+                    <Grid item xs={1}>
+                      <IconButton onClick={() => deletePrompt(index)}>
+                        <DeleteIcon sx={{ marginLeft: -1 }} />
+                      </IconButton>
+                    </Grid>
                   </>
                 )}
                 <Grid item xs={12}>
-                  <IconButton onClick={() => deletePrompt(index)}>
-                    <DeleteIcon />
-                  </IconButton>
                 </Grid>
               </React.Fragment>
             ))}
-            <Grid item xs={12}>
+            <Grid item xs={0.7}></Grid><Grid item xs={11.3}>
               <ButtonGroup variant="contained" aria-label="outlined primary button group">
                 <Button onClick={addGlobal}>Global</Button>
                 <Button onClick={addTransition}>Transition</Button>

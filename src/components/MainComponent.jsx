@@ -51,11 +51,11 @@ const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, isR
           if (prompt.type === 'transition') {
             const originalPrompt = originalData[index];
             const cardIndex = updatePromptTrigger.start ? startSelectedIndex : endSelectedIndex;
-            const rValue = 100 - (interpolateRValue(originalPrompt.before.value, originalPrompt.after.value, cardIndex, count) * 100);
+            const rValue = 100 - (interpolateRValue(originalPrompt.after.value, originalPrompt.before.value, cardIndex, count) * 100);
             return {
               ...prompt,
-              [updatePromptTrigger.start ? 'after' : 'before']: {
-                ...prompt[updatePromptTrigger.start ? 'after' : 'before'],
+              [updatePromptTrigger.start ? 'before' : 'after']: {
+                ...prompt[updatePromptTrigger.start ? 'before' : 'after'],
                 value: rValue,
               },
             };
@@ -83,9 +83,9 @@ const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, isR
         prompt.type === 'transition'
           ? {
             ...prompt,
-            value: interpolateRValue(prompt.before.value, prompt.after.value, i, count),
-            before: prompt.before.tag,
-            after: prompt.after.tag
+            value: interpolateRValue(prompt.after.value, prompt.before.value, i, count),
+            after: prompt.after.tag,
+            before: prompt.before.tag
           }
           : prompt
       );
@@ -94,9 +94,9 @@ const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, isR
         prompt.type === 'transition'
           ? {
             ...prompt,
-            value: interpolateRValue(prompt.before.value, prompt.after.value, i, count),
-            before: prompt.before.tag,
-            after: prompt.after.tag
+            value: interpolateRValue(prompt.after.value, prompt.before.value, i, count),
+            after: prompt.after.tag,
+            before: prompt.before.tag
           }
           : prompt
       );
@@ -128,9 +128,11 @@ const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, isR
             <Alert variant="outlined" icon={<HourglassBottomIcon fontSize="inherit" />} color="primary"><Typography variant="button" color="primary">End image</Typography></Alert>}
           {(startSelectedIndex !== i && endSelectedIndex !== i) && // Check if neither Start nor End is selected
             <CardActions>
-              <Button size="small" onClick={() => handleStartClick(i)} startIcon={<HourglassTopIcon />}>Set Start</Button>
-              <Button size="small" onClick={() => handleEndClick(i)} startIcon={<HourglassBottomIcon />}>Set End</Button>
+              <Button size="small" onClick={() => handleStartClick(i)} endIcon={<HourglassTopIcon />}>set</Button>
+              <Button size="small" onClick={() => handleEndClick(i)} endIcon={<HourglassBottomIcon />}>set</Button>
             </CardActions>}
+            {/* <Typography variant="body2"><pre>{JSON.stringify(finalData,null,2)}</pre></Typography> */}
+            
         </Card>);
     }
     setShouldGenerate(false);

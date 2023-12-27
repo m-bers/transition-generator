@@ -9,8 +9,25 @@ import MainComponent from './components/MainComponent';
 import Settings from './components/Settings';
 import Prompt from './components/Prompt';
 import Stack from '@mui/material/Stack';
+import SaveIcon from '@mui/icons-material/Save';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import ShuffleIcon from '@mui/icons-material/Shuffle';
+import PermMediaIcon from '@mui/icons-material/PermMedia';
+import PublicIcon from '@mui/icons-material/Public';
+import HourglassTopIcon from '@mui/icons-material/HourglassTop';
+import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import NativeSelect from '@mui/material/NativeSelect';
+import TextField from '@mui/material/TextField';
+import Chip from '@mui/material/Chip';
+import Alert from '@mui/material/Alert';
+import LooksOneIcon from '@mui/icons-material/LooksOne';
+import { Divider } from '@mui/material';
+import CompareIcon from '@mui/icons-material/Compare';
 
-const drawerWidth = 240;
+const drawerWidth = 264;
 
 export default function App() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -28,6 +45,10 @@ export default function App() {
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+
+  const handleChange = (name, value) => {
+    handleSettingsChange({ ...settingsData, [name]: value });
   };
 
   const handleSave = () => {
@@ -89,7 +110,7 @@ export default function App() {
   }, []);
 
   const handleGenerate = () => {
-    setIsRandomGeneration(false); 
+    setIsRandomGeneration(false);
     setMainPromptData(localMainPromptData);
     setAntiPromptData(localAntiPromptData);
     setShouldGenerate(true); // Always set to true to trigger generation
@@ -102,14 +123,14 @@ export default function App() {
   const handleRandomize = () => {
     const newRandomSeeds = Array.from({ length: settingsData.count }, () => Math.floor(Math.random() * 10000000));
     setRandomSeeds(newRandomSeeds);
-    setIsRandomGeneration(true); 
+    setIsRandomGeneration(true);
     setMainPromptData(localMainPromptData);
     setAntiPromptData(localAntiPromptData);
     setShouldGenerate(true);
     setHasStarted(true);
     setStartSelectedIndex(null);
     setEndSelectedIndex(null);
-    Generate(); 
+    Generate();
   };
 
   const handleDownload = () => {
@@ -174,62 +195,178 @@ export default function App() {
         randomSeeds={randomSeeds}
 
       >
-        <Stack spacing={2} direction="column" sx={{ mb: 1, maxWidth: 240 }} alignItems="center">
-          <Typography variant="h6" noWrap component="div">
-            Transition Generator
-          </Typography>
-          <Typography>
-            This perchance generator can be used to make relatively seamless transitions between a <b>before</b> image and an <b>after</b> image, by building a prompt which you can construct using <b>tags</b>.
-          </Typography>
-          <Typography>
-            First, set the <b>resolution</b> of the sequence you want to generate. There are three available resolutions.
-          </Typography>
-          {/* INSERT RESOLUTION COMPONENT HERE */}
-          <Typography>
-            Then, set the <b>count</b>, i.e. the number of images you want in your sequence.
-          </Typography>
-          {/* INSERT COUNT COMPONENT HERE */}
-          <Typography>
-            Then, optionally set the seed if you don't want to change your tags but you want a different image.
-          </Typography>
-          {/* INSERT SEED COMPONENT HERE */}
-          <Typography>
-            Finally, optionally set the guidance. Guidance is the amount of conformity to your prompt--higher guidance means fewer tags are likely to be ignored or underemphasized, but also results in a lower quality image. Lower guidance means compromises might be made in favor of quality. The default value is 7, and this is usually what you want to keep it at.
-          </Typography>
-          <Settings onSettingsChange={handleSettingsChange} initialSettings={settingsData} />
-        </Stack>
-        <Stack spacing={2} direction="column" sx={{ mb: 1, maxWidth: 240 }} alignItems="center">
-          <Typography>
-            Next, add some tags to describe the image.
-          </Typography>
-          <Prompt
-            promptType="main"
-            onPromptDataChange={handleMainPromptDataChange}
-            initialPrompts={mainPromptData}
-            count={settingsData.count}
-            setMainPromptData={setMainPromptData}
-            mainPromptData={mainPromptData} // Pass mainPromptData as a prop
-          />
-          <Typography>
-            There are two types of tags: <b>global</b>, and <b>transition</b>. Global tags are applied to ALL images in the sequence equally. Transition tags have a <b>before</b> and an <b>after</b> component, each of which contain a <b>value</b> that you can control via the slider to the left. The top value in the slider is where the transition starts (e.g. 0% of the way through, 10% of the way through, etc.) and the bottom of the slider is where the transition ends.
-          </Typography>
+        <Alert sx={{ color: (theme) => theme.palette.text.primary }} variant="outlined" icon={" "} color="primary">
+          <Stack spacing={2} direction="column" alignItems="center" sx={{ mb: 1, maxWidth: 480 }} >
+            <Typography variant="h6" noWrap component="div" color="primary">
+              <CompareIcon sx={{ marginTop: -5, marginBottom: -0.7 }} /> Transition Generator
+            </Typography>
+            <Typography>
+              This perchance generator can be used to make relatively seamless transitions between a <b>before</b> image
+              and an <b>after</b> image, by building a prompt which you can construct using <b>tags</b>.
+            </Typography>
+            <Typography>
+              There are two types of tags: <b>global</b>, and <b>transition</b>. Global tags are applied to ALL images in the sequence equally. Transition tags have a
+              <HourglassTopIcon sx={{ marginTop: -5, marginBottom: -0.7 }} /> <b>before</b> and an
+              <HourglassBottomIcon sx={{ marginTop: -5, marginBottom: -0.7 }} /> <b>after</b> component,
+              each of which contain a <b>value</b> that you can control via the slider to the left.
+              The top value in the slider is where the transition starts
+              (e.g. 0% of the way through, 10% of the way through, etc.)
+              and the bottom of the slider is where the transition ends.
+            </Typography>
+          </Stack>
+        </Alert>
+        <Alert sx={{ color: (theme) => theme.palette.text.primary }} variant="outlined" icon={"1)"} color="primary">
+          <Stack spacing={2} direction="column" sx={{ mb: 1, maxWidth: 264 }} >
+            <Typography>
+              First, choose a <b>resolution</b> for the images in the sequence you want to generate. There are three available resolutions.
+            </Typography>
+            <FormControl fullWidth>
+              <InputLabel variant="standard" htmlFor="resolution-native">Resolution</InputLabel>
+              <NativeSelect
+                value={settingsData.resolution}
+                onChange={e => handleChange('resolution', e.target.value)}
+                inputProps={{ name: 'resolution', id: 'resolution-native' }}
+              >
+                <option value="768x512">768x512 (Landscape)</option>
+                <option value="512x512">512x512 (Square)</option>
+                <option value="512x768">512x768 (Portrait)</option>
+              </NativeSelect>
+            </FormControl>
+          </Stack>
+        </Alert>
+        <Alert sx={{ color: (theme) => theme.palette.text.primary }} variant="outlined" icon={"2)"} color="primary">
+          <Stack spacing={2} direction="column" sx={{ mb: 1, maxWidth: 264 }} >
+            <Typography>
+              Then, set the <b>count</b>, i.e. the number of images you want in your sequence.
+            </Typography>
+            <TextField
+              id="count"
+              label="Count"
+              value={settingsData.count}
+              onChange={e => handleChange('count', parseInt(e.target.value, 10) || 0)}
+              variant="filled"
+            />
+          </Stack>
+        </Alert>
+        <Alert sx={{ color: (theme) => theme.palette.text.primary }} variant="outlined" icon={"3)"} color="primary">
+          <Stack spacing={2} direction="column" sx={{ mb: 1, maxWidth: 264 }} >
+            <Typography>
+              Optionally set the seed if you know you want a specific set of images.
+            </Typography>
+            <TextField
+              id="seed"
+              label="Seed"
+              value={settingsData.seed}
+              onChange={e => handleChange('seed', parseInt(e.target.value, 10) || 0)}
+              variant="filled"
+            />
+            {/* INSERT SEED COMPONENT HERE */}
+          </Stack>
+        </Alert>
+        <Alert sx={{ color: (theme) => theme.palette.text.primary }} variant="outlined" icon={"4)"} color="primary">
+          <Stack spacing={2} direction="column" sx={{ mb: 1, maxWidth: 264 }} >
+            <Typography>
+              Optionally set the guidance. Higher value means more prompt fidelity but lower image quality. Try not to mess with this unless you need to (default is 7).
+            </Typography>
+            <TextField
+              id="guidance"
+              label="Guidance"
+              value={settingsData.guidance}
+              onChange={e => handleChange('guidance', parseFloat(e.target.value) || 0)}
+              variant="filled"
+            />
+          </Stack>
+        </Alert>
+        <Alert sx={{ color: (theme) => theme.palette.text.primary }} variant="outlined" icon={"5)"} color="primary">
+          <Stack spacing={2} direction="column" sx={{ mb: 1, maxWidth: 264 }} >
+            <Typography>
+              Next, add some tags to describe the image. Think of the tags as a priority list: highest priority items at the top, lowest priority at the bottom.
+            </Typography>
+            <Typography>
+              Stable Diffusion will try to generate images that match all your parameters, but isn't perfect and will start to lose track as the list gets longer.
+            </Typography>
+            <Prompt
+              promptType="main"
+              onPromptDataChange={handleMainPromptDataChange}
+              initialPrompts={mainPromptData}
+              count={settingsData.count}
+              setMainPromptData={setMainPromptData}
+              mainPromptData={mainPromptData} // Pass mainPromptData as a prop
+            />
+          </Stack>
+        </Alert>
+        <Alert sx={{ color: (theme) => theme.palette.text.primary }} variant="outlined" icon={"6)"} color="primary">
 
-        </Stack>
-        <Stack spacing={2} direction="column" sx={{ mb: 1, maxWidth: 240 }} alignItems="center">
-          <Typography>
-            You can also <b>remove</b> tags from the image, i.e. describe things you do NOT want the text-to-image-plugin to generate.
-          </Typography>
-          <Prompt
-            promptType="anti"
-            onPromptDataChange={handleAntiPromptDataChange}
-            initialPrompts={antiPromptData}
-            count={settingsData.count}
-            setAntiPromptData={setAntiPromptData} // Pass the function as a prop
-            antiPromptData={antiPromptData} // Pass mainPromptData as a prop
-          />
-        </Stack>
+          <Stack spacing={2} direction="column" sx={{ mb: 1, maxWidth: 264 }} >
+            <Typography>
+              You can also <b>remove</b> tags from the image, i.e. describe things you do NOT want the text-to-image-plugin to generate.
+            </Typography>
+            <Prompt
+              promptType="anti"
+              onPromptDataChange={handleAntiPromptDataChange}
+              initialPrompts={antiPromptData}
+              count={settingsData.count}
+              setAntiPromptData={setAntiPromptData} // Pass the function as a prop
+              antiPromptData={antiPromptData} // Pass mainPromptData as a prop
+            />
+          </Stack>
+        </Alert>
+        <Alert sx={{ color: (theme) => theme.palette.text.primary }} variant="outlined" icon={"7)"} color="primary">
+          <Stack spacing={2} direction="column" sx={{ mb: 1, maxWidth: 264 }} >
 
-
+            <Typography>
+              Once you have your tags and prompt settings configured, click
+              the <RestartAltIcon sx={{ marginTop: -5, marginBottom: -0.7 }} /> <b>generate</b> button
+              in the toolbar to generate a sequence.
+              Once the sequence is queued, you will need to scroll to the end to get all the images to generate.
+            </Typography>
+          </Stack>
+        </Alert>
+        <Alert sx={{ color: (theme) => theme.palette.text.primary }} variant="outlined" icon={"8)"} color="primary">
+          <Stack spacing={2} direction="column" sx={{ mb: 1, maxWidth: 264 }} >
+            <Typography>
+              Below each image generated, there are two buttons that control the zoom level.
+              The <HourglassTopIcon sx={{ marginTop: -5, marginBottom: -0.7 }} /> <b>start</b> button
+              will set the first image in the new sequence and the
+              <HourglassBottomIcon sx={{ marginTop: -5, marginBottom: -0.7 }} /> <b>end</b> button will set the last image in the new sequence.
+              Once you have both your starting and ending image selected, click the <RestartAltIcon sx={{ marginTop: -5, marginBottom: -0.7 }} /> <b>generate</b> button
+              and a new sequence will be generated that is zoomed in on that particular section of the transition.
+            </Typography>
+          </Stack>
+        </Alert>
+        <Alert sx={{ color: (theme) => theme.palette.text.primary }} variant="outlined" icon={"9)"} color="primary">
+          <Stack spacing={2} direction="column" sx={{ mb: 1, maxWidth: 264 }} >
+            <Typography>
+              You can also use the <ShuffleIcon sx={{ marginTop: -5, marginBottom: -0.7 }} /> <b>randomize</b> button
+              in the toolbar for seed hunting--either for your before image or your after image.
+            </Typography>
+            <Typography>
+              If you want to find a good seed for your ending image, adjust the sliders on each of your
+              transitions to the bottom (or just click
+              the <HourglassTopIcon sx={{ marginTop: -5, marginBottom: -0.7 }} /> <b>start</b> button
+              on the final image in a sequence) and click <RestartAltIcon sx={{ marginTop: -5, marginBottom: -0.7 }} /> <b>generate</b>.
+            </Typography>
+            <Typography>
+              To find a seed for a starting image, adjust the sliders to the top or click
+              the <HourglassBottomIcon sx={{ marginTop: -5, marginBottom: -0.7 }} /> <b>end</b> button, and then
+              click <RestartAltIcon sx={{ marginTop: -5, marginBottom: -0.7 }} /> <b>generate</b>.
+            </Typography>
+          </Stack>
+        </Alert>
+        <Alert sx={{ color: (theme) => theme.palette.text.primary }} variant="outlined" icon={"10)"} color="primary">
+          <Stack spacing={2} direction="column" sx={{ mb: 1, maxWidth: 264 }} >
+            <Typography>
+              Finally, you can save your entire configuration of tags and settings to use later
+              by clicking the <SaveIcon sx={{ marginTop: -5, marginBottom: -0.7 }} /> <b>save</b> button
+              in the toolbar.
+            </Typography>
+            <Typography>
+              Naturally, you can also load a previously saved configuration by clicking
+              the <UploadFileIcon sx={{ marginTop: -5, marginBottom: -0.7 }} /> <b>load</b> button right next to it.
+            </Typography>
+            <Typography>(planned for a future update) You can download a zip file containing all images from the last generation by clicking the <PermMediaIcon sx={{ marginTop: -5, marginBottom: -0.7 }} /> <b>media</b> button. </Typography>
+          </Stack>
+        </Alert>
       </MainComponent>
 
     </Box>
