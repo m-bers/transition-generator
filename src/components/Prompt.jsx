@@ -3,47 +3,51 @@ import React, { useState, useEffect } from 'react';
 import {
   Accordion,
   AccordionSummary,
-  AccordionDetails,
   Typography,
   TextField,
   Stack,
   Slider,
   Button,
   Divider,
-  ButtonGroup,
   Grid,
   IconButton,
-  Container
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PublicIcon from '@mui/icons-material/Public';
 import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
-import DeleteIcon from '@mui/icons-material/Delete';
-import DragIndicator from '@mui/icons-material/DragIndicator'
+import DragIndicator from '@mui/icons-material/DragIndicator';
+import { DndContext, DragOverlay, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 
-export default function Prompt({
-  promptType,
-  onPromptDataChange,
-  initialPrompts
-}) {
+import { SortableItem } from './SortableItem';
+import { Item } from './Item';
 
-  const [prompts, setPrompts] = useState(initialPrompts.map(prompt => {
-    if (prompt.type === 'transition') {
-      return {
-        ...prompt,
+export default function Prompt({ promptType, onPromptDataChange, initialPrompts }) {
+  const [prompts, setPrompts] = useState(
+    initialPrompts.map((prompt, index) => ({
+      ...prompt,
+      id: `item-${index}`,
+      ...(prompt.type === 'transition' && {
         after: { ...prompt.after, value: Number(prompt.after.value) || 0 },
-        before: { ...prompt.before, value: Number(prompt.before.value) || 0 }
-      };
-    }
-    return prompt;
-  }) || []);
+        before: { ...prompt.before, value: Number(prompt.before.value) || 0 },
+      }),
+    })) || []
+  );
+
+  const [activeId, setActiveId] = useState(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const [isUpdated, setIsUpdated] = useState(false);
 
   useEffect(() => {
     if (Array.isArray(initialPrompts)) {
-      setPrompts(initialPrompts);
+      setPrompts(initialPrompts.map((prompt, index) => ({ ...prompt, id: `item-${index}` })));
     }
   }, [initialPrompts]);
 
@@ -54,21 +58,20 @@ export default function Prompt({
     }
   }, [prompts, onPromptDataChange, isUpdated]);
 
-
   const addGlobal = () => {
-    const newPrompt = { type: 'global', tag: '' };
+    const newPrompt = { type: 'global', tag: '', id: `item-${prompts.length}` };
     setPrompts([...prompts, newPrompt]);
   };
 
-
   const addTransition = () => {
-    setPrompts([...prompts, {
+    const newPrompt = {
       type: 'transition',
+      id: `item-${prompts.length}`,
       after: { tag: '', value: 100 },
-      before: { tag: '', value: 0 } 
-    }]);
+      before: { tag: '', value: 0 },
+    };
+    setPrompts([...prompts, newPrompt]);
   };
-
 
   const updatePrompt = (index, key, value) => {
     const newPrompts = prompts.map((prompt, idx) => {
@@ -90,7 +93,7 @@ export default function Prompt({
         return {
           ...prompt,
           after: { ...prompt.after, value: 100 - Number(value[0]) },
-          before: { ...prompt.before, value: 100 - Number(value[1]) }  // Use single number value
+          before: { ...prompt.before, value: 100 - Number(value[1]) },
         };
       }
       return prompt;
@@ -99,104 +102,54 @@ export default function Prompt({
     setIsUpdated(true);
   };
 
-  const deletePrompt = index => {
-    const newPrompts = prompts.filter((_, idx) => idx !== index);
-    setPrompts(newPrompts);
-  };
+  function handleDragStart(event) {
+    const { active } = event;
+    setActiveId(active.id);
+  }
+
+  function handleDragEnd(event) {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setPrompts((items) => {
+        const oldIndex = items.findIndex(item => item.id === active.id);
+        const newIndex = items.findIndex(item => item.id === over.id);
+
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+    setIsUpdated(true);
+    setActiveId(null);
+  }
 
   return (
     <div>
-      <Accordion>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
-          <Typography>{promptType === 'main' ? 'Add' : 'Remove'} Tags</Typography>
-        </AccordionSummary>
-        <Divider /><br/>
-          <Grid container spacing={1} alignItems="center">
-            {Array.isArray(prompts) && prompts.map((prompt, index) => (
-              <React.Fragment key={index}>
-                {prompt.type === 'global' && (
-                  <>
-
-                    <Grid item xs={1} >
-                      <IconButton onClick={() => deletePrompt(index)}>
-                        <DragIndicator sx={{ marginLeft: -1 }} />
-                      </IconButton>
-                    </Grid>
-                    <Grid item xs={9}>
-                      <TextField
-                        fullWidth
-                        label="Global"
-                        placeholder="e.g. woman portrait"
-                        multiline
-                        variant="filled"
-                        value={prompt.tag}
-                        onChange={(e) => updatePrompt(index, 'tag', e.target.value)}
-                      />
-                    </Grid>
-                    <Grid item xs={1.65}>
-                      <PublicIcon sx={{ marginLeft: 0.3 }} />
-                    </Grid>
-                  </>
-                )}
-                {prompt.type === 'transition' && (
-                  <>
-                    <Grid item xs={1}>
-                      <IconButton onClick={() => deletePrompt(index)}>
-                        <DragIndicator sx={{ marginLeft: -1 }} />
-                      </IconButton>
-                    </Grid>
-                    <Grid item xs={9}>
-                      <TextField
-                        fullWidth
-                        label="Before"
-                        placeholder="e.g. goth aesthetic"
-                        multiline
-                        variant="filled"
-                        value={prompt.before.tag}
-                        onChange={(e) => updatePrompt(index, 'before', e.target.value)}
-                      />
-                      <TextField
-                        fullWidth
-                        label="After"
-                        placeholder="e.g. hippie aesthetic"
-                        multiline
-                        variant="filled"
-                        value={prompt.after.tag}
-                        onChange={(e) => updatePrompt(index, 'after', e.target.value)}
-                      />
-                    </Grid>
-                    <Grid item xs={1.65}>
-                      <Stack spacing={2} direction="column" sx={{ mb: 1 }} alignItems="center">
-                        <HourglassTopIcon />
-                        <Slider
-                          sx={{ height: 30 }}
-                          getAriaLabel={() => 'Temperature'}
-                          orientation="vertical"
-                          value={[100 - Number(prompt.after.value), 100 - Number(prompt.before.value)]}
-                          onChange={(e, newValue) => updateSlider(index, newValue)}
-                          valueLabelDisplay="off"
-                          min={0}
-                          max={100}
-                        />
-                        <HourglassBottomIcon />
-                      </Stack>
-                    </Grid>
-                  </>
-                )}
-                <Grid item xs={12}>
-                </Grid>
-              </React.Fragment>
-            ))}
-
-          </Grid>
-          <Stack spacing={2} direction="column">
-          <Stack spacing={1} direction="row" justifyContent="center">
-              <Button variant="contained" onClick={addGlobal}>Global</Button>
-              <Button variant="contained" onClick={addTransition}>Transition</Button>
-          </Stack>
-          <Divider/>
-        </Stack>
-      </Accordion>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <SortableContext items={prompts} strategy={verticalListSortingStrategy}>
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
+              <Typography>{promptType === 'main' ? 'Add' : 'Remove'} Tags</Typography>
+            </AccordionSummary>
+            <Divider /><br />
+            <Grid container spacing={1} alignItems="center">
+              {Array.isArray(prompts) &&
+                prompts.map((prompt, index) => (
+                  <SortableItem key={prompt.id} id={prompt.id} prompt={prompt} updatePrompt={updatePrompt} updateSlider={updateSlider} index={index} />
+                ))}
+            </Grid>
+            <Stack spacing={2} direction="column">
+              <Stack spacing={1} direction="row" justifyContent="center">
+                <Button variant="contained" onClick={addGlobal}>Global</Button>
+                <Button variant="contained" onClick={addTransition}>Transition</Button>
+              </Stack>
+              <Divider />
+            </Stack>
+          </Accordion>
+        </SortableContext>
+        <DragOverlay>
+          {activeId ? <Item id={activeId} prompt={prompts.find(prompt => prompt.id === activeId)} /> : null}
+        </DragOverlay>
+      </DndContext>
     </div>
   );
 }

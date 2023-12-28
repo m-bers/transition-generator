@@ -162,7 +162,7 @@ const MainComponent = ({
                 </>
               )}
             </CardActions>}
-          {/* <Typography variant="body2"><pre>{JSON.stringify(finalData, null, 2)}</pre></Typography> */}
+          <Typography variant="body2"><pre>{JSON.stringify(finalData, null, 2)}</pre></Typography>
 
         </Card>);
     }
@@ -199,8 +199,8 @@ const MainComponent = ({
     >
 
       <Toolbar />
-      {/* <Typography variant="body2"><pre>{JSON.stringify(mainPromptData, null, 2)}</pre></Typography>
-      <Typography variant="body2"><pre>{JSON.stringify(antiPromptData, null, 2)}</pre></Typography> */}
+      <Typography variant="body2"><pre>{JSON.stringify(mainPromptData, null, 2)}</pre></Typography>
+      <Typography variant="body2"><pre>{JSON.stringify(antiPromptData, null, 2)}</pre></Typography>
       <Stack spacing={{ xs: 1, sm: 2 }} direction="row" useFlexGap justifyContent="center" flexWrap="wrap">
         {hasStarted ? cards : children}
       </Stack>

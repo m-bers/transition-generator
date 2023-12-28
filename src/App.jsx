@@ -193,8 +193,6 @@ export default function App() {
         setEndSelectedIndex={setEndSelectedIndex}
         isRandomGeneration={isRandomGeneration}
         randomSeeds={randomSeeds}
-        setSettingsData={setSettingsData}
-
 
       >
         <Alert sx={{ color: (theme) => theme.palette.text.primary }} variant="outlined" icon={" "} color="primary">
