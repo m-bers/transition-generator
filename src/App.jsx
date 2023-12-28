@@ -43,6 +43,7 @@ export default function App() {
   const [randomSeeds, setRandomSeeds] = useState([]);
   const [isRandomGeneration, setIsRandomGeneration] = useState(false);
   const [allCanvasPresent, setAllCanvasPresent] = useState(false);
+  const [renderTrigger, setRenderTrigger] = useState(0);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -110,8 +111,21 @@ export default function App() {
     setSettingsData(data);
   }, []);
 
-  const handleGenerate = () => {
+  const handleTransition = () => {
     setIsRandomGeneration(false);
+    setRenderTrigger(rt => rt + 1); // Increment the trigger
+    handleGenerate();
+  };
+
+  const handleRandomize = () => {
+    const newRandomSeeds = Array.from({ length: settingsData.count }, () => Math.floor(Math.random() * 10000000));
+    setRandomSeeds(newRandomSeeds);
+    setIsRandomGeneration(true);
+    setRenderTrigger(rt => rt + 1); // Increment the trigger
+    handleGenerate();
+  };
+
+  const handleGenerate = () => {
     setMainPromptData(localMainPromptData);
     setAntiPromptData(localAntiPromptData);
     setShouldGenerate(true); // Always set to true to trigger generation
@@ -120,21 +134,7 @@ export default function App() {
     setEndSelectedIndex(null);
     setAllCanvasPresent(false); // Reset the canvas check
     Generate();
-  };
-
-  const handleRandomize = () => {
-    const newRandomSeeds = Array.from({ length: settingsData.count }, () => Math.floor(Math.random() * 10000000));
-    setRandomSeeds(newRandomSeeds);
-    setIsRandomGeneration(true);
-    setMainPromptData(localMainPromptData);
-    setAntiPromptData(localAntiPromptData);
-    setShouldGenerate(true);
-    setHasStarted(true);
-    setStartSelectedIndex(null);
-    setEndSelectedIndex(null);
-    setAllCanvasPresent(false); // Reset the canvas check
-    Generate();
-  };
+  }
 
   const handleDownload = async () => {
     const zip = require('jszip')();
@@ -171,7 +171,7 @@ export default function App() {
         handleSave={handleSave}
         handleLoad={handleLoad}
         handleDownload={handleDownload}
-        handleGenerate={handleGenerate}
+        handleTransition={handleTransition}
         handleRandomize={handleRandomize}
         allCanvasPresent={allCanvasPresent}
         setAllCanvasPresent={setAllCanvasPresent}
@@ -224,7 +224,7 @@ export default function App() {
         allCanvasPresent={allCanvasPresent}
         setAllCanvasPresent={setAllCanvasPresent}
         setSettingsData={setSettingsData}
-
+        renderTrigger={renderTrigger}
       >
         <Alert sx={{ color: (theme) => theme.palette.text.primary }} variant="outlined" icon={" "} color="primary">
           <Stack spacing={2} direction="column" alignItems="center" sx={{ mb: 1, maxWidth: 480 }} >

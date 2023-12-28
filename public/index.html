@@ -24,6 +24,7 @@
   <script>
     function Generate() {
       generate = 1;
+      console.log("Generate() called.")
       update();
     }
     function Output(final) {
@@ -85,12 +86,12 @@
             final.guidanceScale = parsedData.guidanceScale || 'defaultGuidanceScale';
             final.resolution = parsedData.resolution || 'defaultResolution';
 
-            const promptDataElement = document.getElementById(`prompt-data-${x-1}`);
+            const promptDataElement = document.getElementById(`prompt-data-${x - 1}`);
             if (promptDataElement) {
-              promptDataElement.innerHTML = `<div id="image-${x-1}">${imageGen(final)}</div>`;
+              promptDataElement.innerHTML = `<div id="image-${x - 1}">${imageGen(final)}</div>`;
             }
 
-          return '';
+            return '';
           });
           document.getElementById('backend-output').innerHTML = outputArray.join('');
           return '';
@@ -125,6 +126,14 @@
       });
 
       observer.observe(document, { childList: true, subtree: true });
+    }
+
+    function onFinish(result) {
+      let iframe = result.iframe;
+      let canvas = result.canvas;
+      iframe.replaceWith(canvas);
+      canvas.style.width = iframe.style.width;
+      canvas.style.height = iframe.style.height;
     }
   </script>
 </body>

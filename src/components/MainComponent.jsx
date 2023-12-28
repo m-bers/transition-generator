@@ -1,5 +1,5 @@
 // MainComponent.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Card from '@mui/material/Card';
@@ -34,10 +34,13 @@ const MainComponent = ({
   setEndSelectedIndex,
   setSettingsData,
   children,
-  setAllCanvasPresent }) => {
+  setAllCanvasPresent,
+  renderTrigger
+}) => {
 
   const [cards, setCards] = useState([]); // State to store generated cards
   const [updatePromptTrigger, setUpdatePromptTrigger] = useState({ start: false, end: false });
+  const lastCardRef = useRef(null);
 
   useEffect(() => {
     setLocalMainPromptData(mainPromptData);
@@ -51,7 +54,7 @@ const MainComponent = ({
   }, [shouldGenerate, mainPromptData, antiPromptData, count, seed, guidanceScale, resolution]); // Dependencies
 
   useEffect(() => {
-    if (hasStarted) {
+    if (!hasStarted) {
       setCards(generateCards()); // Generate new cards
     }
   }, [startSelectedIndex, endSelectedIndex]); // Dependencies
@@ -98,22 +101,27 @@ const MainComponent = ({
 
   useEffect(() => {
     const observer = new MutationObserver(mutations => {
-        mutations.forEach(mutation => {
-            if (mutation.addedNodes.length) {
-                const canvasCount = document.querySelectorAll('[id^="image-"] canvas').length;
-                setAllCanvasPresent(canvasCount === count);
-            }
-        });
+      mutations.forEach(mutation => {
+        if (mutation.addedNodes.length) {
+          const canvasCount = document.querySelectorAll('[id^="image-"] canvas').length;
+          setAllCanvasPresent(canvasCount === count);
+        }
+      });
     });
 
     observer.observe(document.body, { childList: true, subtree: true });
 
     return () => {
-        observer.disconnect();
+      observer.disconnect();
     };
-}, [count, setAllCanvasPresent]);
+  }, [count, setAllCanvasPresent]);
 
-  
+  useEffect(() => {
+    if (lastCardRef.current) {
+      Generate();
+    }
+  }, [renderTrigger]);
+
 
   const generateCards = () => {
     if (!mainPromptData || !antiPromptData) {
@@ -155,16 +163,18 @@ const MainComponent = ({
       const divId = `prompt-data-${i}`;
 
       divs.push(
-        <Card key={i} sx={{
-          // background: startSelectedIndex === i ? (theme) => theme.palette.secondary.main : endSelectedIndex === i ? "#00FF00" : undefined
-        }}>
+        <Card
+          ref={i === count - 1 ? lastCardRef : null}
+          key={i}
+          sx={{
+            display: hasStarted ? 'block' : 'none',
+          }}>
           <CardMedia
             component="div"
             className="prompt-data"
             data={JSON.stringify(finalData)}
             key={i}
             id={divId}
-            sx={{maxWidth: 200}}
           />
           {startSelectedIndex === i &&
             <Alert variant="outlined" icon={<HourglassTopIcon fontSize="inherit" />} color="primary"><Typography variant="button" color="primary">Start image</Typography></Alert>}

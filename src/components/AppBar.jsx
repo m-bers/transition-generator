@@ -17,7 +17,7 @@ const MyAppBar = ({
     handleSave, 
     handleLoad, 
     handleDownload, 
-    handleGenerate, 
+    handleTransition, 
     handleRandomize,
     allCanvasPresent
  }) => {
@@ -41,7 +41,7 @@ const MyAppBar = ({
                 >
                     <MenuIcon />
                 </IconButton>
-                <IconButton color="inherit" onClick={handleGenerate}><RestartAltIcon/></IconButton>
+                <IconButton color="inherit" onClick={handleTransition}><RestartAltIcon/></IconButton>
                 <IconButton color="inherit" onClick={handleRandomize}><ShuffleIcon/></IconButton>
                 <IconButton color="inherit" onClick={handleSave}><SaveIcon/></IconButton>
                 <input
