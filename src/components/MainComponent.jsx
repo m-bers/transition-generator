@@ -33,7 +33,8 @@ const MainComponent = ({
   endSelectedIndex,
   setEndSelectedIndex,
   setSettingsData,
-  children }) => {
+  children,
+  setAllCanvasPresent }) => {
 
   const [cards, setCards] = useState([]); // State to store generated cards
   const [updatePromptTrigger, setUpdatePromptTrigger] = useState({ start: false, end: false });
@@ -95,6 +96,24 @@ const MainComponent = ({
     }
   }, [updatePromptTrigger, startSelectedIndex, endSelectedIndex, mainPromptData, antiPromptData, count]);
 
+  useEffect(() => {
+    const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            if (mutation.addedNodes.length) {
+                const canvasCount = document.querySelectorAll('[id^="image-"] canvas').length;
+                setAllCanvasPresent(canvasCount === count);
+            }
+        });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+        observer.disconnect();
+    };
+}, [count, setAllCanvasPresent]);
+
+  
 
   const generateCards = () => {
     if (!mainPromptData || !antiPromptData) {
@@ -136,7 +155,7 @@ const MainComponent = ({
       const divId = `prompt-data-${i}`;
 
       divs.push(
-        <Card sx={{
+        <Card key={i} sx={{
           // background: startSelectedIndex === i ? (theme) => theme.palette.secondary.main : endSelectedIndex === i ? "#00FF00" : undefined
         }}>
           <CardMedia
@@ -145,7 +164,7 @@ const MainComponent = ({
             data={JSON.stringify(finalData)}
             key={i}
             id={divId}
-            maxWidth="200"
+            sx={{maxWidth: 200}}
           />
           {startSelectedIndex === i &&
             <Alert variant="outlined" icon={<HourglassTopIcon fontSize="inherit" />} color="primary"><Typography variant="button" color="primary">Start image</Typography></Alert>}
@@ -162,7 +181,7 @@ const MainComponent = ({
                 </>
               )}
             </CardActions>}
-          <Typography variant="body2"><pre>{JSON.stringify(finalData, null, 2)}</pre></Typography>
+          {/* <Typography variant="body2"><pre>{JSON.stringify(finalData, null, 2)}</pre></Typography> */}
 
         </Card>);
     }
@@ -199,10 +218,11 @@ const MainComponent = ({
     >
 
       <Toolbar />
-      <Typography variant="body2"><pre>{JSON.stringify(mainPromptData, null, 2)}</pre></Typography>
-      <Typography variant="body2"><pre>{JSON.stringify(antiPromptData, null, 2)}</pre></Typography>
+      {/* <pre>{JSON.stringify(mainPromptData, null, 2)}</pre>
+      <pre>{JSON.stringify(antiPromptData, null, 2)}</pre> */}
       <Stack spacing={{ xs: 1, sm: 2 }} direction="row" useFlexGap justifyContent="center" flexWrap="wrap">
-        {hasStarted ? cards : children}
+        {cards}
+        {hasStarted ? null : children}
       </Stack>
 
 

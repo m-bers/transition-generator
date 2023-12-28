@@ -18,7 +18,9 @@ const MyAppBar = ({
     handleLoad, 
     handleDownload, 
     handleGenerate, 
-    handleRandomize }) => {
+    handleRandomize,
+    allCanvasPresent
+ }) => {
 
     return (
         <AppBar
@@ -39,6 +41,9 @@ const MyAppBar = ({
                 >
                     <MenuIcon />
                 </IconButton>
+                <IconButton color="inherit" onClick={handleGenerate}><RestartAltIcon/></IconButton>
+                <IconButton color="inherit" onClick={handleRandomize}><ShuffleIcon/></IconButton>
+                <IconButton color="inherit" onClick={handleSave}><SaveIcon/></IconButton>
                 <input
                   type="file"
                   accept=".json"
@@ -49,10 +54,7 @@ const MyAppBar = ({
                 <label htmlFor="file-upload">
                     <IconButton color="inherit" component="span"><UploadFileIcon/></IconButton>
                 </label>
-                <IconButton color="inherit" onClick={handleSave}><SaveIcon/></IconButton>
-                <IconButton color="inherit" onClick={handleGenerate}><RestartAltIcon/></IconButton>
-                <IconButton color="inherit" onClick={handleRandomize}><ShuffleIcon/></IconButton>
-                <IconButton color="inherit" onClick={handleDownload}><PermMediaIcon/></IconButton>
+                <IconButton color="inherit" onClick={handleDownload} disabled={!allCanvasPresent}><PermMediaIcon/></IconButton>
             </Toolbar>
         </AppBar>
     );

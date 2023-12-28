@@ -2,6 +2,11 @@
 <html lang="en">
 
 <head>
+  <style>
+    .MuiTypography-body1 {
+      text-align: left;
+    }
+  </style>
   <meta charset="utf-8" />
   <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
   <meta name="viewport" content="initial-scale=1, width=device-width" />
@@ -96,8 +101,6 @@
       }
       return '';
     }
-
-
 
     function Input(callback) {
       const observer = new MutationObserver((mutationsList, observer) => {

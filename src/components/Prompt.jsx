@@ -4,21 +4,27 @@ import {
   Accordion,
   AccordionSummary,
   Typography,
-  TextField,
   Stack,
-  Slider,
   Button,
   Divider,
   Grid,
-  IconButton,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import PublicIcon from '@mui/icons-material/Public';
-import HourglassTopIcon from '@mui/icons-material/HourglassTop';
-import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
-import DragIndicator from '@mui/icons-material/DragIndicator';
-import { DndContext, DragOverlay, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { 
+  DndContext, 
+  DragOverlay, 
+  closestCenter, 
+  KeyboardSensor, 
+  PointerSensor, 
+  TouchSensor,
+  useSensor, 
+  useSensors
+} from '@dnd-kit/core';
+import { arrayMove, 
+  SortableContext, 
+  sortableKeyboardCoordinates, 
+  verticalListSortingStrategy 
+} from '@dnd-kit/sortable';
 
 import { SortableItem } from './SortableItem';
 import { Item } from './Item';
@@ -36,12 +42,25 @@ export default function Prompt({ promptType, onPromptDataChange, initialPrompts 
   );
 
   const [activeId, setActiveId] = useState(null);
+  const touchSensorOptions = {
+    // Use either delay or distance
+    activationConstraint: {
+      delay: 250,     // delay in milliseconds
+      tolerance: 5    // tolerance in pixels
+    },
+    // Or
+    // activationConstraint: {
+    //   distance: 5, // distance in pixels
+    // },
+  };
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
+    useSensor(TouchSensor, touchSensorOptions)
   );
+  
 
   const [isUpdated, setIsUpdated] = useState(false);
 
@@ -130,8 +149,8 @@ export default function Prompt({ promptType, onPromptDataChange, initialPrompts 
             <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
               <Typography>{promptType === 'main' ? 'Add' : 'Remove'} Tags</Typography>
             </AccordionSummary>
-            <Divider /><br />
-            <Grid container spacing={1} alignItems="center">
+            <Divider />
+            <Grid container spacing={1} alignItems="center" sx={{ marginTop: 1, marginBottom: 1}}>
               {Array.isArray(prompts) &&
                 prompts.map((prompt, index) => (
                   <SortableItem key={prompt.id} id={prompt.id} prompt={prompt} updatePrompt={updatePrompt} updateSlider={updateSlider} index={index} />

@@ -42,6 +42,7 @@ export default function App() {
   const [localAntiPromptData, setLocalAntiPromptData] = useState(antiPromptData);
   const [randomSeeds, setRandomSeeds] = useState([]);
   const [isRandomGeneration, setIsRandomGeneration] = useState(false);
+  const [allCanvasPresent, setAllCanvasPresent] = useState(false);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -117,6 +118,7 @@ export default function App() {
     setHasStarted(true);
     setStartSelectedIndex(null);
     setEndSelectedIndex(null);
+    setAllCanvasPresent(false); // Reset the canvas check
     Generate();
   };
 
@@ -130,12 +132,35 @@ export default function App() {
     setHasStarted(true);
     setStartSelectedIndex(null);
     setEndSelectedIndex(null);
+    setAllCanvasPresent(false); // Reset the canvas check
     Generate();
   };
 
-  const handleDownload = () => {
-    DownloadImages();
-  }
+  const handleDownload = async () => {
+    const zip = require('jszip')();
+    // Assuming you have JSZip library for creating a zip file
+
+    for (let i = 0; i < settingsData.count; i++) {
+      const canvas = document.querySelector(`#image-${i} canvas`);
+      if (canvas) {
+        const imageData = canvas.toDataURL("image/png");
+        // Add image data to zip. Split dataUrl to get base64 part
+        zip.file(`image-${i}.png`, imageData.split(',')[1], { base64: true });
+      }
+    }
+
+    // Generate zip and trigger download
+    zip.generateAsync({ type: "blob" })
+      .then(function (blob) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = "images.zip";
+        link.click();
+        URL.revokeObjectURL(url);
+      });
+  };
+
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -148,6 +173,9 @@ export default function App() {
         handleDownload={handleDownload}
         handleGenerate={handleGenerate}
         handleRandomize={handleRandomize}
+        allCanvasPresent={allCanvasPresent}
+        setAllCanvasPresent={setAllCanvasPresent}
+
       />
       <Drawer drawerWidth={drawerWidth} mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle}>
         <Prompt
@@ -193,6 +221,9 @@ export default function App() {
         setEndSelectedIndex={setEndSelectedIndex}
         isRandomGeneration={isRandomGeneration}
         randomSeeds={randomSeeds}
+        allCanvasPresent={allCanvasPresent}
+        setAllCanvasPresent={setAllCanvasPresent}
+        setSettingsData={setSettingsData}
 
       >
         <Alert sx={{ color: (theme) => theme.palette.text.primary }} variant="outlined" icon={" "} color="primary">
@@ -364,7 +395,7 @@ export default function App() {
               Naturally, you can also load a previously saved configuration by clicking
               the <UploadFileIcon sx={{ marginTop: -5, marginBottom: -0.7 }} /> <b>load</b> button right next to it.
             </Typography>
-            <Typography>(planned for a future update) You can download a zip file containing all images from the last generation by clicking the <PermMediaIcon sx={{ marginTop: -5, marginBottom: -0.7 }} /> <b>media</b> button. </Typography>
+            <Typography>You can download a zip file containing all images from the last generation by clicking the <PermMediaIcon sx={{ marginTop: -5, marginBottom: -0.7 }} /> <b>media</b> button. </Typography>
           </Stack>
         </Alert>
       </MainComponent>

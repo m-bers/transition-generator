@@ -17,6 +17,7 @@
     "@emotion/styled": "latest",
     "@mui/icons-material": "^5.15.1",
     "@mui/material": "latest",
+    "jszip": "^3.10.1",
     "react": "latest",
     "react-dom": "latest",
     "react-scripts": "latest"

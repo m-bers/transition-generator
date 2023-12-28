@@ -19,7 +19,7 @@ export const Item = forwardRef(({ prompt, updatePrompt, updateSlider, index, att
 
           <Grid item xs={1.5} >
 
-            <DragIndicator sx={{marginLeft: 1}}{...listeners} />
+            <DragIndicator sx={{marginLeft: 1, touchAction: 'manipulation'}}{...listeners} />
 
           </Grid>
           <Grid item xs={8.5}>
@@ -41,7 +41,7 @@ export const Item = forwardRef(({ prompt, updatePrompt, updateSlider, index, att
       {prompt.type === 'transition' && (
         <>
           <Grid item xs={1.5}>
-            <DragIndicator sx={{marginLeft: 1}}{...listeners} />
+            <DragIndicator sx={{marginLeft: 1, touchAction: 'manipulation'}} {...listeners} />
           </Grid>
           <Grid item xs={8.5}>
             <TextField
