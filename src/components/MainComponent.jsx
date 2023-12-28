@@ -13,7 +13,28 @@ import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 
 
-const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, isRandomGeneration, randomSeeds, localMainPromptData, localAntiPromptData, setLocalMainPromptData, setLocalAntiPromptData, seed, guidanceScale, resolution, shouldGenerate, setShouldGenerate, hasStarted, startSelectedIndex, setStartSelectedIndex, endSelectedIndex, setEndSelectedIndex, children }) => {
+const MainComponent = ({
+  drawerWidth,
+  count,
+  mainPromptData,
+  antiPromptData,
+  isRandomGeneration,
+  randomSeeds,
+  setLocalMainPromptData,
+  setLocalAntiPromptData,
+  seed,
+  guidanceScale,
+  resolution,
+  shouldGenerate,
+  setShouldGenerate,
+  hasStarted,
+  startSelectedIndex,
+  setStartSelectedIndex,
+  endSelectedIndex,
+  setEndSelectedIndex,
+  setSettingsData,
+  children }) => {
+
   const [cards, setCards] = useState([]); // State to store generated cards
   const [updatePromptTrigger, setUpdatePromptTrigger] = useState({ start: false, end: false });
 
@@ -34,6 +55,10 @@ const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, isR
     }
   }, [startSelectedIndex, endSelectedIndex]); // Dependencies
 
+  const handleAddSeed = (newSeed) => {
+    setSettingsData(prevSettings => ({ ...prevSettings, seed: newSeed }));
+  };
+
   const handleStartClick = (cardIndex) => {
     setStartSelectedIndex(cardIndex);
     setUpdatePromptTrigger({ start: true, end: false }); // Set trigger for start
@@ -51,7 +76,7 @@ const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, isR
           if (prompt.type === 'transition') {
             const originalPrompt = originalData[index];
             const cardIndex = updatePromptTrigger.start ? startSelectedIndex : endSelectedIndex;
-            const rValue = 100 - (interpolateRValue(originalPrompt.after.value, originalPrompt.before.value, cardIndex, count) * 100);
+            const rValue = (interpolateRValue(originalPrompt.after.value, originalPrompt.before.value, cardIndex, count) * 100);
             return {
               ...prompt,
               [updatePromptTrigger.start ? 'before' : 'after']: {
@@ -128,11 +153,17 @@ const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, isR
             <Alert variant="outlined" icon={<HourglassBottomIcon fontSize="inherit" />} color="primary"><Typography variant="button" color="primary">End image</Typography></Alert>}
           {(startSelectedIndex !== i && endSelectedIndex !== i) && // Check if neither Start nor End is selected
             <CardActions>
-              <Button size="small" onClick={() => handleStartClick(i)} endIcon={<HourglassTopIcon />}>set</Button>
-              <Button size="small" onClick={() => handleEndClick(i)} endIcon={<HourglassBottomIcon />}>set</Button>
+              {isRandomGeneration ? (
+                <Button size="small" onClick={() => handleAddSeed(finalData.seed)} startIcon={" "}>Set Seed</Button>
+              ) : (
+                <>
+                  <Button size="small" onClick={() => handleStartClick(i)} startIcon={<HourglassTopIcon />}>set start</Button>
+                  <Button size="small" onClick={() => handleEndClick(i)} startIcon={<HourglassBottomIcon />}>set end</Button>
+                </>
+              )}
             </CardActions>}
-            {/* <Typography variant="body2"><pre>{JSON.stringify(finalData,null,2)}</pre></Typography> */}
-            
+          {/* <Typography variant="body2"><pre>{JSON.stringify(finalData, null, 2)}</pre></Typography> */}
+
         </Card>);
     }
     setShouldGenerate(false);
@@ -141,8 +172,8 @@ const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, isR
 
 
   const interpolateRValue = (initialValue, finalValue, index, total) => {
-    const initVal = (100 - parseFloat(initialValue)) / 100;
-    const finalVal = (100 - parseFloat(finalValue)) / 100;
+    const initVal = (parseFloat(initialValue)) / 100;
+    const finalVal = (parseFloat(finalValue)) / 100;
     if (isNaN(initVal) || isNaN(finalVal)) {
       console.error('Initial or final value is not a number', { initialValue, finalValue });
       return 0;
@@ -168,6 +199,8 @@ const MainComponent = ({ drawerWidth, count, mainPromptData, antiPromptData, isR
     >
 
       <Toolbar />
+      {/* <Typography variant="body2"><pre>{JSON.stringify(mainPromptData, null, 2)}</pre></Typography>
+      <Typography variant="body2"><pre>{JSON.stringify(antiPromptData, null, 2)}</pre></Typography> */}
       <Stack spacing={{ xs: 1, sm: 2 }} direction="row" useFlexGap justifyContent="center" flexWrap="wrap">
         {hasStarted ? cards : children}
       </Stack>

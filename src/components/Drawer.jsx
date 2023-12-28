@@ -8,7 +8,12 @@ import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import CompareIcon from '@mui/icons-material/Compare';
 
-const ResponsiveDrawer = ({ drawerWidth, mobileOpen, handleDrawerToggle, children }) => {
+const ResponsiveDrawer = ({ 
+    drawerWidth, 
+    mobileOpen, 
+    handleDrawerToggle, 
+    children }) => {
+        
     const drawerContent = (
         <div>
             <Toolbar>

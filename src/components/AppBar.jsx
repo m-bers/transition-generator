@@ -11,7 +11,14 @@ import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import ShuffleIcon from '@mui/icons-material/Shuffle';
 import PermMediaIcon from '@mui/icons-material/PermMedia';
 
-const MyAppBar = ({ drawerWidth, handleDrawerToggle, handleSave, handleLoad, handleDownload, handleGenerate, handleRandomize }) => {
+const MyAppBar = ({ 
+    drawerWidth, 
+    handleDrawerToggle, 
+    handleSave, 
+    handleLoad, 
+    handleDownload, 
+    handleGenerate, 
+    handleRandomize }) => {
 
     return (
         <AppBar

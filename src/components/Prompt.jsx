@@ -13,6 +13,7 @@ import {
   ButtonGroup,
   Grid,
   IconButton,
+  Container
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PublicIcon from '@mui/icons-material/Public';
@@ -20,6 +21,7 @@ import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DragIndicator from '@mui/icons-material/DragIndicator'
+
 export default function Prompt({
   promptType,
   onPromptDataChange,
@@ -62,8 +64,8 @@ export default function Prompt({
   const addTransition = () => {
     setPrompts([...prompts, {
       type: 'transition',
-      after: { tag: '', value: 0 },
-      before: { tag: '', value: 100 }  // Set initial values to 0 and 100
+      after: { tag: '', value: 100 },
+      before: { tag: '', value: 0 } 
     }]);
   };
 
@@ -87,8 +89,8 @@ export default function Prompt({
       if (idx === index && prompt.type === 'transition') {
         return {
           ...prompt,
-          after: { ...prompt.after, value: Number(value[0]) || 0 },
-          before: { ...prompt.before, value: Number(value[1]) || 100 }  // Use single number value
+          after: { ...prompt.after, value: 100 - Number(value[0]) },
+          before: { ...prompt.before, value: 100 - Number(value[1]) }  // Use single number value
         };
       }
       return prompt;
@@ -108,18 +110,21 @@ export default function Prompt({
         <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
           <Typography>{promptType === 'main' ? 'Add' : 'Remove'} Tags</Typography>
         </AccordionSummary>
-        <Divider />
-        <AccordionDetails>
+        <Divider /><br/>
           <Grid container spacing={1} alignItems="center">
             {Array.isArray(prompts) && prompts.map((prompt, index) => (
               <React.Fragment key={index}>
                 {prompt.type === 'global' && (
                   <>
-                    <Grid item xs={2}>
-                      <PublicIcon sx={{ marginLeft: 0.5 }} />
+
+                    <Grid item xs={1} >
+                      <IconButton onClick={() => deletePrompt(index)}>
+                        <DragIndicator sx={{ marginLeft: -1 }} />
+                      </IconButton>
                     </Grid>
                     <Grid item xs={9}>
                       <TextField
+                        fullWidth
                         label="Global"
                         placeholder="e.g. woman portrait"
                         multiline
@@ -128,33 +133,21 @@ export default function Prompt({
                         onChange={(e) => updatePrompt(index, 'tag', e.target.value)}
                       />
                     </Grid>
-                    <Grid item xs={1}>
-                      <IconButton onClick={() => deletePrompt(index)}>
-                        <DeleteIcon sx={{ marginLeft: -1 }} />
-                      </IconButton>
+                    <Grid item xs={1.65}>
+                      <PublicIcon sx={{ marginLeft: 0.3 }} />
                     </Grid>
                   </>
                 )}
                 {prompt.type === 'transition' && (
                   <>
-                    <Grid item xs={2}>
-                      <Stack spacing={2} direction="column" sx={{ mb: 1 }} alignItems="center">
-                        <HourglassTopIcon />
-                        <Slider
-                          sx={{ height: 30 }}
-                          getAriaLabel={() => 'Temperature'}
-                          orientation="vertical"
-                          value={[Number(prompt.before.value) || 0, Number(prompt.after.value) || 0]}
-                          onChange={(e, newValue) => updateSlider(index, newValue)}
-                          valueLabelDisplay="auto"
-                          min={0}
-                          max={100}
-                        />
-                        <HourglassBottomIcon />
-                      </Stack>
+                    <Grid item xs={1}>
+                      <IconButton onClick={() => deletePrompt(index)}>
+                        <DragIndicator sx={{ marginLeft: -1 }} />
+                      </IconButton>
                     </Grid>
                     <Grid item xs={9}>
                       <TextField
+                        fullWidth
                         label="Before"
                         placeholder="e.g. goth aesthetic"
                         multiline
@@ -163,6 +156,7 @@ export default function Prompt({
                         onChange={(e) => updatePrompt(index, 'before', e.target.value)}
                       />
                       <TextField
+                        fullWidth
                         label="After"
                         placeholder="e.g. hippie aesthetic"
                         multiline
@@ -171,10 +165,21 @@ export default function Prompt({
                         onChange={(e) => updatePrompt(index, 'after', e.target.value)}
                       />
                     </Grid>
-                    <Grid item xs={1}>
-                      <IconButton onClick={() => deletePrompt(index)}>
-                        <DeleteIcon sx={{ marginLeft: -1 }} />
-                      </IconButton>
+                    <Grid item xs={1.65}>
+                      <Stack spacing={2} direction="column" sx={{ mb: 1 }} alignItems="center">
+                        <HourglassTopIcon />
+                        <Slider
+                          sx={{ height: 30 }}
+                          getAriaLabel={() => 'Temperature'}
+                          orientation="vertical"
+                          value={[100 - Number(prompt.after.value), 100 - Number(prompt.before.value)]}
+                          onChange={(e, newValue) => updateSlider(index, newValue)}
+                          valueLabelDisplay="off"
+                          min={0}
+                          max={100}
+                        />
+                        <HourglassBottomIcon />
+                      </Stack>
                     </Grid>
                   </>
                 )}
@@ -182,14 +187,15 @@ export default function Prompt({
                 </Grid>
               </React.Fragment>
             ))}
-            <Grid item xs={0.7}></Grid><Grid item xs={11.3}>
-              <ButtonGroup variant="contained" aria-label="outlined primary button group">
-                <Button onClick={addGlobal}>Global</Button>
-                <Button onClick={addTransition}>Transition</Button>
-              </ButtonGroup>
-            </Grid>
+
           </Grid>
-        </AccordionDetails>
+          <Stack spacing={2} direction="column">
+          <Stack spacing={1} direction="row" justifyContent="center">
+              <Button variant="contained" onClick={addGlobal}>Global</Button>
+              <Button variant="contained" onClick={addTransition}>Transition</Button>
+          </Stack>
+          <Divider/>
+        </Stack>
       </Accordion>
     </div>
   );

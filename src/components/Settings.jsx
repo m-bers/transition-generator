@@ -7,7 +7,10 @@ import InputLabel from '@mui/material/InputLabel';
 import NativeSelect from '@mui/material/NativeSelect';
 import Stack from '@mui/material/Stack';
 
-const Settings = ({ onSettingsChange, initialSettings }) => {
+const Settings = ({ 
+  onSettingsChange, 
+  initialSettings 
+}) => {
 
   const handleChange = (name, value) => {
     onSettingsChange({ ...initialSettings, [name]: value });
