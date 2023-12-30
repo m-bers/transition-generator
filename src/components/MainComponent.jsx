@@ -1,5 +1,5 @@
 // MainComponent.js
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useState, useRef } from 'react';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Card from '@mui/material/Card';
@@ -116,7 +116,7 @@ const MainComponent = ({
     };
   }, [count, setAllCanvasPresent]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (lastCardRef.current) {
       Generate();
     }
@@ -164,12 +164,12 @@ const MainComponent = ({
 
       divs.push(
         <Card
-          ref={i === count - 1 ? lastCardRef : null}
           key={i}
           sx={{
             display: hasStarted ? 'block' : 'none',
           }}>
           <CardMedia
+            ref={i === count - 1 ? lastCardRef : null}
             component="div"
             className="prompt-data"
             data={JSON.stringify(finalData)}

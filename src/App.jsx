@@ -133,7 +133,9 @@ export default function App() {
     setStartSelectedIndex(null);
     setEndSelectedIndex(null);
     setAllCanvasPresent(false); // Reset the canvas check
-    Generate();
+    setTimeout(() => {
+      Generate();
+    }, 10);
   }
 
   const handleDownload = async () => {

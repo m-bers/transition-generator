@@ -25,10 +25,10 @@
     function Generate() {
       generate = 1;
       console.log("Generate() called.")
+      // setTimeout(() => {update()}, 10);
       update();
     }
     function Output(final) {
-      window.imageGen = imageGen;
       if (generate) {
         Input((dataValues, dataCount) => {
           let x = 0;
